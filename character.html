@@ -1,0 +1,1617 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Character Chat</title>
+  <style>
+    :root{
+      /* Hedonic / character.ai-ish palette */
+      --bg0:#07070c;
+      --bg1:#0b1024;
+
+      --card: rgba(18, 18, 30, .58);
+      --card2: rgba(26, 24, 44, .58);
+      --line: rgba(255,255,255,.12);
+
+      --text:#f5f6ff;
+      --muted: rgba(240,245,255,.68);
+
+      --me: rgba(56, 189, 248, .16);
+      --bot: rgba(236, 72, 153, .14);
+
+      --pink: rgba(236,72,153,.95);
+      --violet: rgba(139,92,246,.95);
+      --cyan: rgba(56,189,248,.92);
+      --lime: rgba(132,204,22,.90);
+
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --radius: 22px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1000px 600px at 15% 5%, rgba(236,72,153,.18), transparent 60%),
+        radial-gradient(900px 600px at 80% 15%, rgba(56,189,248,.16), transparent 55%),
+        radial-gradient(900px 700px at 50% 100%, rgba(139,92,246,.15), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg0));
+      overflow:hidden;
+    }
+
+    /* floating bokeh */
+    .bokeh{
+      position:fixed; inset:0; pointer-events:none; opacity:.65;
+      filter: blur(0px);
+      background:
+        radial-gradient(80px 80px at 10% 20%, rgba(236,72,153,.22), transparent 60%),
+        radial-gradient(120px 120px at 70% 15%, rgba(56,189,248,.20), transparent 60%),
+        radial-gradient(110px 110px at 85% 65%, rgba(139,92,246,.18), transparent 60%),
+        radial-gradient(140px 140px at 20% 80%, rgba(132,204,22,.12), transparent 60%);
+      animation: drift 14s ease-in-out infinite alternate;
+    }
+    @keyframes drift{
+      0%{transform:translate3d(0,0,0) scale(1)}
+      100%{transform:translate3d(-12px, 10px,0) scale(1.03)}
+    }
+
+    .wrap{
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+
+    /* Main card */
+    .card{
+      width:min(980px, 100%);
+      height:min(760px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px) saturate(140%);
+      overflow:hidden;
+      position:relative;
+    }
+
+    /* animated gradient edge */
+    .card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        conic-gradient(from 180deg at 50% 50%,
+          rgba(236,72,153,.55),
+          rgba(139,92,246,.55),
+          rgba(56,189,248,.55),
+          rgba(132,204,22,.30),
+          rgba(236,72,153,.55)
+        );
+      filter: blur(10px);
+      opacity:.22;
+      z-index:0;
+      animation: spin 10s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .cardInner{
+      position:absolute; inset:0;
+      background: linear-gradient(180deg, rgba(12,12,22,.78), rgba(8,8,14,.86));
+      z-index:1;
+    }
+
+    /* top bar */
+    .topbar{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(900px 240px at 10% 0%, rgba(236,72,153,.18), transparent 55%),
+        radial-gradient(900px 240px at 90% 0%, rgba(56,189,248,.14), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+      flex:1;
+    }
+
+    .brandIcon{
+      width:40px; height:40px; border-radius:14px;
+      display:grid; place-items:center;
+      border:1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(18px 18px at 30% 30%, rgba(236,72,153,.60), transparent 65%),
+        radial-gradient(18px 18px at 70% 30%, rgba(56,189,248,.55), transparent 65%),
+        radial-gradient(18px 18px at 50% 70%, rgba(139,92,246,.55), transparent 65%),
+        linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+      box-shadow: 0 12px 30px rgba(0,0,0,.40);
+    }
+
+    .brandText{min-width:0}
+    .brandTitle{
+      font-weight:900;
+      letter-spacing:-.3px;
+      line-height:1.1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .chip{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+      font-weight:800;
+      font-size:12px;
+      color: rgba(245,246,255,.92);
+      cursor:pointer;
+      user-select:none;
+    }
+    .chip:hover{filter:brightness(1.08)}
+    .chipDot{
+      width:8px;height:8px;border-radius:999px;
+      background: linear-gradient(135deg, rgba(236,72,153,.95), rgba(56,189,248,.85));
+      box-shadow: 0 0 12px rgba(236,72,153,.35);
+    }
+
+    /* Main area layout */
+    .main{
+      height:calc(100% - 64px);
+      min-height:0;
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:0;
+    }
+
+    @media (max-width: 900px){
+      .main{grid-template-columns: 1fr}
+      .side{display:none}
+      .topbar{padding:10px 12px}
+    }
+
+    /* Sidebar */
+    .side{
+      border-right:1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(800px 420px at 50% 0%, rgba(139,92,246,.12), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      padding:14px;
+      overflow:auto;
+    }
+
+    .sideHeader{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      margin-bottom:10px;
+      gap:10px;
+    }
+
+    .sideTitle{
+      font-weight:900;
+      letter-spacing:-.2px;
+      font-size:14px;
+    }
+    .sideHint{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .charGrid{
+      display:grid;
+      gap:12px;
+    }
+
+    .charCard{
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.12);
+      background:
+        linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      box-shadow: 0 14px 34px rgba(0,0,0,.30);
+      overflow:hidden;
+      cursor:pointer;
+      transition: transform .15s ease, filter .15s ease, border-color .15s ease;
+      position:relative;
+    }
+    .charCard:hover{
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      border-color: rgba(255,255,255,.18);
+    }
+
+    .charBanner{
+      height:92px;
+      background:
+        radial-gradient(240px 120px at 20% 20%, rgba(236,72,153,.25), transparent 60%),
+        radial-gradient(240px 120px at 80% 20%, rgba(56,189,248,.20), transparent 60%),
+        linear-gradient(135deg, rgba(139,92,246,.18), rgba(255,255,255,.02));
+      position:relative;
+    }
+    .charBanner::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,.18), transparent 70%);
+      opacity:.14;
+    }
+
+    .charBody{padding:12px}
+    .charRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-top:-26px;
+    }
+    .charAvatar{
+      width:52px;height:52px;border-radius:16px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.05);
+      overflow:hidden;
+      box-shadow: 0 16px 34px rgba(0,0,0,.45);
+      flex:0 0 auto;
+    }
+    .charAvatar img{width:100%;height:100%;object-fit:cover;display:block}
+
+    .charMeta{min-width:0}
+    .charName{
+      font-weight:950;
+      letter-spacing:-.25px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .charTag{
+      font-size:12px;
+      color: rgba(240,245,255,.78);
+      opacity:.9;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .charDesc{
+      margin-top:10px;
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.4;
+    }
+
+    .charCard.selected{
+      outline: 2px solid rgba(56,189,248,.35);
+      box-shadow:
+        0 0 0 1px rgba(56,189,248,.18),
+        0 18px 50px rgba(56,189,248,.10),
+        0 14px 34px rgba(0,0,0,.35);
+    }
+
+    .charCard.locked{
+      opacity: .35;
+      filter: grayscale(1) blur(1px);
+      pointer-events: none;
+      transform: none !important;
+    }
+
+    .charCard.selected{
+      opacity: 1 !important;
+      filter: none !important;
+      pointer-events: auto !important;
+    }
+
+    /* Chat panel */
+    .panel{
+      display:flex;
+      flex-direction:column;
+      height:100%;
+      min-width:0;
+      min-height:0;
+    }
+
+    .log{
+      flex:1;
+      min-height:0;
+      overflow:auto;
+      padding:16px;
+      background:
+        radial-gradient(900px 600px at 30% 0%, rgba(236,72,153,.10), transparent 60%),
+        radial-gradient(900px 600px at 80% 20%, rgba(56,189,248,.08), transparent 55%),
+        linear-gradient(180deg, rgba(6,7,14,.55), rgba(6,7,14,.80));
+    }
+
+    .row{display:flex; gap:10px; margin:10px 0; align-items:flex-end}
+    .row.me{justify-content:flex-end}
+    .row > div{min-width:0}
+
+    .avatar{
+      width:38px;height:38px;
+      border-radius:14px;
+      flex:0 0 auto;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.05);
+      box-shadow: 0 14px 32px rgba(0,0,0,.35);
+    }
+    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+
+    .bubble{
+      display:inline-block;
+      max-width:min(76%, 740px);
+      padding:12px 14px;
+      border-radius: 18px;
+      line-height:1.45;
+      white-space:pre-wrap;
+      word-break:break-word;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.12);
+      background:
+        linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+    }
+    .row.bot .bubble{
+      background:
+        radial-gradient(300px 140px at 20% 0%, rgba(236,72,153,.18), transparent 70%),
+        linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    }
+    .row.me .bubble{
+      background:
+        radial-gradient(300px 140px at 80% 0%, rgba(56,189,248,.16), transparent 70%),
+        linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border-color: rgba(56,189,248,.22);
+    }
+
+    .meta{
+      margin-top:6px;
+      font-size:11px;
+      color: rgba(240,245,255,.62);
+    }
+
+    .actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .actionBtn{
+      padding:9px 12px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:900;
+      color: rgba(245,246,255,.95);
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 10px 22px rgba(0,0,0,.26);
+    }
+    .actionBtn.primary{
+      border:none;
+      background: linear-gradient(135deg, rgba(236,72,153,.95), rgba(56,189,248,.92));
+      box-shadow: 0 16px 34px rgba(236,72,153,.16);
+    }
+    .actionBtn:hover{filter:brightness(1.06)}
+
+    /* composer */
+    .composer{
+      padding:12px 14px;
+      border-top:1px solid rgba(255,255,255,.10);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+    }
+
+    textarea.input{
+      flex:1;
+      padding:12px 14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      outline:none;
+      font-size:14px;
+      resize:none;
+      line-height:1.4;
+      min-height:52px;
+      color:var(--text);
+      background: rgba(255,255,255,.06);
+      box-shadow: inset 0 0 0 1px rgba(139,92,246,.08);
+    }
+    textarea.input::placeholder{color: rgba(240,245,255,.42)}
+
+    .btn{
+      padding:12px 14px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      font-weight:950;
+      color:#fff;
+      background: linear-gradient(135deg, rgba(139,92,246,.95), rgba(236,72,153,.95));
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.10),
+        0 16px 40px rgba(139,92,246,.20);
+    }
+    .btn:hover{filter:brightness(1.07)}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+
+    .hintRow{
+      display:flex;
+      gap:10px;
+      justify-content:space-between;
+      padding:0 14px 12px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .smalllink{
+      color:#fbcfe8;
+      text-decoration:underline;
+      cursor:pointer;
+      font-weight:800;
+    }
+
+    /* typing */
+    .typing{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      padding:10px 12px;
+      border-radius:16px;
+      background: rgba(236,72,153,.14);
+      border:1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(8px);
+    }
+    .dot{
+      width:6px;height:6px;border-radius:999px;
+      background: radial-gradient(circle, rgba(251,207,232,1), rgba(236,72,153,1));
+      box-shadow: 0 0 10px rgba(236,72,153,.55);
+      animation:bounce 1.05s infinite ease-in-out;
+      opacity:.9
+    }
+    .dot:nth-child(2){animation-delay:.15s}
+    .dot:nth-child(3){animation-delay:.3s}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.55}40%{transform:translateY(-6px);opacity:1}}
+
+    /* modal overlay */
+    .overlay{
+      position:absolute; inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      z-index:5;
+      padding:18px;
+    }
+    .overlayBox{
+      width:min(560px, 100%);
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(16,16,28,.82);
+      box-shadow: 0 22px 70px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .overlayHead{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      background:
+        radial-gradient(700px 240px at 20% 0%, rgba(236,72,153,.16), transparent 65%),
+        linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    }
+    .overlayTitle{font-weight:950}
+    .closeX{
+      width:34px;height:34px;border-radius:12px;
+      display:grid;place-items:center;
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      font-weight:950;
+    }
+    .overlayBody{padding:14px; display:grid; gap:12px}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size:11px;
+      padding:2px 6px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      color: rgba(245,246,255,.92);
+    }
+
+    /* toast */
+    .toast{
+      position:absolute;
+      bottom:16px; left:50%;
+      transform:translateX(-50%);
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(16,16,28,.65);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+      font-size:12px;
+      color: rgba(245,246,255,.86);
+      display:none;
+      z-index:6;
+    }
+  </style>
+</head>
+
+<body>
+<div class="bokeh"></div>
+
+<div class="wrap">
+  <div class="card" id="card">
+    <div class="cardInner">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brandIcon" aria-hidden="true">✨</div>
+          <div class="brandText">
+            <div class="brandTitle" id="appTitle">AI Character Chat</div>
+          </div>
+        </div>
+
+        <div class="chip" id="pickBtn" title="Pick a character (mobile)">
+          <span class="chipDot"></span>
+          <span id="activeCharChip">Pick a character</span>
+        </div>
+
+        <div class="chip" id="resetBtn" title="Reset">
+          <span>↻</span><span>Reset</span>
+        </div>
+      </div>
+
+      <div class="main">
+        <!-- Sidebar (desktop) -->
+        <aside class="side" id="side">
+          <div class="sideHeader">
+            <div>
+              <div class="sideTitle">Characters</div>
+              <div class="sideHint">Click to chat, or type the name.</div>
+            </div>
+            <div class="sideHint"><span class="kbd">help</span></div>
+          </div>
+
+          <div class="charGrid" id="charGrid"></div>
+
+          <div style="margin-top:14px; font-size:12px; color:rgba(240,245,255,.62); line-height:1.5">
+            <div style="font-weight:900; color:rgba(245,246,255,.90); margin-bottom:6px">Quick tips</div>
+            <div>• Type <span class="kbd">pick</span> to choose a character.</div>
+            <div>• Type <span class="kbd">rules</span> to see what the bot understands.</div>
+            <div>• You can map lots of phrases to one intent.</div>
+          </div>
+        </aside>
+
+        <!-- Chat panel -->
+        <section class="panel">
+          <div class="log" id="log"></div>
+
+          <div class="composer">
+            <textarea class="input" id="msg" rows="2"
+              placeholder='Enter = send, Shift+Enter = new line. Example: "pick luna" or "help".'></textarea>
+            <button class="btn" id="send">Send</button>
+          </div>
+
+          <div class="hintRow">
+            <div>English only. AI-based scenarios. Character-aware tone.</div>
+            <div><span class="smalllink" id="openPickerLink">Pick character</span></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Mobile character picker overlay -->
+      <div class="overlay" id="overlay">
+        <div class="overlayBox">
+          <div class="overlayHead">
+            <div>
+              <div class="overlayTitle">Pick a character</div>
+              <div style="font-size:12px;color:rgba(240,245,255,.68)">Tap one, or type the name in chat.</div>
+            </div>
+            <div class="closeX" id="closeOverlay">✕</div>
+          </div>
+          <div class="overlayBody" id="overlayBody"></div>
+        </div>
+      </div>
+
+      <div class="toast" id="toast"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ========= Utility =========
+  const $ = (id)=>document.getElementById(id);
+  const log = $("log");
+  const msg = $("msg");
+  const send = $("send");
+  const resetBtn = $("resetBtn");
+  const charGrid = $("charGrid");
+  const overlay = $("overlay");
+  const overlayBody = $("overlayBody");
+  const pickBtn = $("pickBtn");
+  const openPickerLink = $("openPickerLink");
+  const closeOverlay = $("closeOverlay");
+  const activeCharChip = $("activeCharChip");
+  const toast = $("toast");
+
+  function nowTime(){
+    const d = new Date();
+    return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+  }
+  function normalize(text){
+    return (text||"").trim().toLowerCase().replace(/\s+/g," ");
+  }
+  function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+  function showToast(text){
+    toast.textContent = text;
+    toast.style.display = "block";
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>toast.style.display="none", 1800);
+  }
+
+  // ========= Characters =========
+  function svgAvatarDataURI({bgA,bgB,emoji,accent}){
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="${bgA}"/>
+            <stop offset="1" stop-color="${bgB}"/>
+          </linearGradient>
+          <radialGradient id="r" cx="30%" cy="25%" r="70%">
+            <stop offset="0" stop-color="${accent}" stop-opacity="0.55"/>
+            <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="128" height="128" rx="34" fill="url(#g)"/>
+        <rect width="128" height="128" rx="34" fill="url(#r)"/>
+        <circle cx="64" cy="70" r="36" fill="rgba(255,255,255,0.88)"/>
+        <text x="64" y="78" font-size="40" text-anchor="middle" dominant-baseline="middle">${emoji}</text>
+      </svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg.trim());
+  }
+
+  const Characters = [
+    {
+      id: "luna",
+      name: "Luna",
+      tagline: "Princess of Everglass Castle",
+      description: "Regal, warm, and playful in a gentle way. Speaks like a fairytale court—kind, curious, and composed.",
+      avatar: svgAvatarDataURI({ bgA:"#ec4899", bgB:"#8b5cf6", emoji:"👑", accent:"#fbcfe8" }),
+      voice: {
+        prefix: "Luna 👑",
+        styleHints: ["regal", "poetic", "warm", "gentle humor", "fairytale court"],
+        tics: ["My dear", "Indeed", "How intriguing", "By royal decree (playful)"],
+      }
+    },
+    {
+      id: "jax",
+      name: "Jax",
+      tagline: "Neon Club DJ & Hype Captain",
+      description: "Fast, upbeat, and rhythm-obsessed. Turns your messages into ‘tracks’—energetic, playful, and supportive.",
+      avatar: svgAvatarDataURI({ bgA:"#38bdf8", bgB:"#22c55e", emoji:"🎧", accent:"#cffafe" }),
+      voice: {
+        prefix: "Jax 🎧",
+        styleHints: ["energetic", "club DJ", "hype", "short punchy", "rhythm metaphors"],
+        tics: ["Let’s go", "Big mood", "Drop the beat", "Mic check"],
+      }
+    }
+  ];
+
+  let activeChar = null;
+  let typingRowEl = null;
+
+  // ========= UI: Character cards =========
+  function buildCharCard(ch, isOverlay){
+    const card = document.createElement("div");
+    card.className = "charCard";
+    card.dataset.charId = ch.id;
+
+    card.innerHTML = `
+      <div class="charBanner"></div>
+      <div class="charBody">
+        <div class="charRow">
+          <div class="charAvatar"><img alt="${ch.name}" src="${ch.avatar}"></div>
+          <div class="charMeta">
+            <div class="charName">${ch.name}</div>
+            <div class="charTag">${ch.tagline}</div>
+          </div>
+        </div>
+        <div class="charDesc">${ch.description}</div>
+      </div>
+    `;
+
+    card.addEventListener("click", () => {
+      setActiveCharacter(ch.id);
+      if(isOverlay) closePicker();
+    });
+
+    return card;
+  }
+
+  function renderCharacters(){
+    charGrid.innerHTML = "";
+    overlayBody.innerHTML = "";
+    Characters.forEach(ch => {
+      charGrid.appendChild(buildCharCard(ch, false));
+      overlayBody.appendChild(buildCharCard(ch, true));
+    });
+    syncSelectionUI();
+  }
+
+  function syncSelectionUI(){
+    const hasActive = !!activeChar;
+
+    document.querySelectorAll(".charCard").forEach(el => {
+      const isSel = hasActive && el.dataset.charId === activeChar.id;
+      el.classList.toggle("selected", isSel);
+
+      if(hasActive){
+        el.classList.toggle("locked", !isSel);
+      } else {
+        el.classList.remove("locked");
+      }
+    });
+
+    activeCharChip.textContent = activeChar ? activeChar.name : "Pick a character";
+  }
+
+  function getIntroForCharacter(ch){
+    if(ch.id === "luna"){
+      return `Welcome to Everglass Castle.\nTell me your purpose, and I shall respond with grace—wisdom, whimsy, or a playful quest.`;
+    }
+    if(ch.id === "jax"){
+      return `Yo—mic check! Welcome to the Neon Booth.\nGive me a topic and a vibe—chill, hype, or storytelling—and I’ll remix it.`;
+    }
+    return `Hello.`;
+  }
+
+  function setActiveCharacter(charId){
+    const ch = Characters.find(c => c.id === charId);
+    if(!ch) return;
+    activeChar = ch;
+    awaitingPick = false;
+    syncSelectionUI();
+    addSystemRow(`You are now chatting with ${ch.name}.`);
+    botSay(getIntroForCharacter(ch)); // immediate intro
+  }
+
+  function openPicker(){ overlay.style.display = "flex"; }
+  function closePicker(){ overlay.style.display = "none"; }
+
+  // ========= Chat rendering =========
+  function addRow({who, text, avatarUrl, actions=[], media=null}){
+    const row = document.createElement("div");
+    row.className = "row " + (who === "me" ? "me" : "bot");
+
+    if(who === "bot"){
+      const av = document.createElement("div");
+      av.className = "avatar";
+      const img = document.createElement("img");
+      img.alt = (activeChar ? activeChar.name : "Bot");
+      img.src = avatarUrl || (activeChar ? activeChar.avatar : Characters[0].avatar);
+      av.appendChild(img);
+      row.appendChild(av);
+    }
+
+    const wrap = document.createElement("div");
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+
+    if(text){
+      const t = document.createElement("div");
+      t.textContent = text;
+      t.style.whiteSpace = "pre-wrap";
+      bubble.appendChild(t);
+    }
+
+    if(media && media.type === "gif" && media.src){
+      const img = document.createElement("img");
+      img.src = media.src;
+      img.alt = media.alt || "gif";
+      img.loading = "lazy";
+      img.style.display = "block";
+      img.style.maxWidth = "260px";
+      img.style.width = "100%";
+      img.style.borderRadius = "14px";
+      img.style.marginTop = text ? "10px" : "0";
+      img.style.border = "1px solid rgba(255,255,255,.12)";
+      bubble.appendChild(img);
+    }
+
+    if(who === "bot" && actions.length){
+      const actionsEl = document.createElement("div");
+      actionsEl.className = "actions";
+      actions.forEach(a => {
+        const b = document.createElement("button");
+        b.className = "actionBtn " + (a.primary ? "primary" : "");
+        b.textContent = a.label;
+        b.onclick = () => {
+          addRow({who:"me", text: a.label});
+          respond("@choice:" + (a.value || a.label));
+        };
+        actionsEl.appendChild(b);
+      });
+      bubble.appendChild(actionsEl);
+    }
+
+    wrap.appendChild(bubble);
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = nowTime();
+    wrap.appendChild(meta);
+
+    row.appendChild(wrap);
+    log.appendChild(row);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function addSystemRow(text){
+    const row = document.createElement("div");
+    row.className = "row bot";
+    const wrap = document.createElement("div");
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = text;
+    bubble.style.opacity = ".85";
+    bubble.style.fontSize = "13px";
+    bubble.style.borderStyle = "dashed";
+    bubble.style.background = "rgba(255,255,255,.04)";
+    wrap.appendChild(bubble);
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = nowTime();
+    wrap.appendChild(meta);
+    row.appendChild(wrap);
+    log.appendChild(row);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function showTyping(){
+    if(typingRowEl) return;
+    const row = document.createElement("div");
+    row.className = "row bot";
+
+    const av = document.createElement("div");
+    av.className = "avatar";
+    const img = document.createElement("img");
+    img.alt = (activeChar ? activeChar.name : "Bot");
+    img.src = activeChar ? activeChar.avatar : Characters[0].avatar;
+    av.appendChild(img);
+
+    const typing = document.createElement("div");
+    typing.className = "typing";
+    typing.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+
+    row.appendChild(av);
+    row.appendChild(typing);
+    typingRowEl = row;
+    log.appendChild(row);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function hideTyping(){
+    if(!typingRowEl) return;
+    typingRowEl.remove();
+    typingRowEl = null;
+  }
+
+  function botSay(text, actions, media){
+    addRow({
+      who:"bot",
+      text,
+      avatarUrl: activeChar ? activeChar.avatar : null,
+      actions: actions || [],
+      media: media || null
+    });
+  }
+
+  async function botSayWithDelay(text, actions=[], media=null, opts={}){
+    const { immediate=false, delayMs=950 } = opts;
+    if(immediate){
+      botSay(text, actions, media);
+      return;
+    }
+    showTyping();
+    await sleep(delayMs);
+    hideTyping();
+    botSay(text, actions, media);
+  }
+
+  // ========= Tone helper =========
+  function charLine(lunaText, jaxText){
+    if(!activeChar) return lunaText;
+    return activeChar.id === "luna" ? lunaText : jaxText;
+  }
+
+  // ========= Actions / modes =========
+  const GLOBAL_ACTIONS = {
+    pick: [
+      { label: "Pick Luna", value: "pick:luna", primary:true },
+      { label: "Pick Jax",  value: "pick:jax",  primary:false }
+    ],
+    modes: [
+      { label: "Flirty banter", value: "mode:flirty", primary:true },
+      { label: "Silly quest",   value: "mode:quest" },
+      { label: "Roast me",      value: "mode:roast" }
+    ]
+  };
+
+  let conversationMode = "casual";
+  let awaitingPick = true;
+
+  // ========= Intents =========
+  function mapToIntent(t){
+    const MAP = [
+      { intent:"pick", rx:[ /^pick\b/i, /\bchoose\b/i, /\bselect\b/i, /\bcharacter\b/i, /\bswitch\b/i ]},
+      { intent:"pick_luna", rx:[ /^pick\s+luna\b/i, /^choose\s+luna\b/i, /^select\s+luna\b/i, /\bluna\b/i ]},
+      { intent:"pick_jax",  rx:[ /^pick\s+jax\b/i, /^choose\s+jax\b/i, /^select\s+jax\b/i, /\bjax\b/i ]},
+
+      { intent:"help",  rx:[ /^help\b/i, /\bwhat can you do\b/i, /\boptions\b/i, /\bhow does this work\b/i, /\bcommands\b/i ]},
+      { intent:"rules", rx:[ /^rules\b/i, /\bwhat do you understand\b/i, /\bkeywords\b/i, /\bsupported\b/i ]},
+      { intent:"reset", rx:[ /^reset\b/i, /\brestart\b/i, /\bstart over\b/i ]},
+
+      { intent:"mode_flirty", rx:[ /\bflirt(y)?\b/i, /\bromance\b/i, /\bcompliment\b/i ]},
+      { intent:"mode_quest",  rx:[ /\bquest\b/i, /\badventure\b/i, /\bstory\b/i, /\brole\s*play\b/i, /\brp\b/i ]},
+      { intent:"mode_roast",  rx:[ /\broast\b/i, /\bgently tease\b/i, /\btease me\b/i ]},
+
+      { intent:"greeting", rx:[ /^(hi|hello|hey|yo|sup)\b/i, /\bgood (morning|afternoon|evening)\b/i ]},
+      { intent:"thanks",   rx:[ /^(thanks|thank you|thx|ty)\b/i ]},
+    ];
+
+    for(const m of MAP){
+      if(m.rx.some(r => r.test(t))) return m.intent;
+    }
+    return null;
+  }
+
+  // ========= Rules =========
+  const RULES = [
+    {
+      id:"start_gate",
+      when: (t, intent) => awaitingPick && !activeChar,
+      reply: () => ({
+        text:
+`Welcome ✨ This is an English-only, AI-based character chat.
+Pick a character to begin (click a card, or type: "Luna" / "Jax").`,
+        actions: GLOBAL_ACTIONS.pick
+      })
+    },
+       {
+      id:"pick_shortcut",
+      when: (t, intent) => intent === "pick" || t.startsWith("pick "),
+      reply: () => ({
+        text: `Who do you want to chat with?`,
+        actions: GLOBAL_ACTIONS.pick
+      })
+    },
+    {
+      id:"pick_luna",
+      when: (t, intent) => intent === "pick_luna" || t === "@choice:pick:luna",
+      reply: () => {
+        setActiveCharacter("luna");
+        return { text: null };
+      }
+    },
+    {
+      id:"pick_jax",
+      when: (t, intent) => intent === "pick_jax" || t === "@choice:pick:jax",
+      reply: () => {
+        setActiveCharacter("jax");
+        return { text: null };
+      }
+    },
+
+    // ----- Utility intents -----
+    {
+      id:"help",
+      when: (t, intent) => intent === "help",
+      reply: () => ({
+        text:
+`Here are some things you can try:
+• "rules" (see supported intents)
+• "flirty" / "quest" / "roast" (change vibe)
+• Small talk: "how are you", "tell me a joke", "I'm bored"
+
+Tip: You can add tons of aliases to intents for flexibility.`,
+        actions: [
+          { label:"Pick a character", value:"pick", primary:true },
+          { label:"Show rules", value:"rules" },
+          { label:"Flirty banter", value:"mode:flirty" },
+          { label:"Silly quest", value:"mode:quest" },
+          { label:"Gentle tease", value:"mode:roast" }
+        ]
+      })
+    },
+    {
+      id:"rules",
+      when: (t, intent) => intent === "rules",
+      reply: () => ({
+        text:
+`Supported intents:
+• picking: "pick", "luna", "jax"
+• utility: "help", "reset", "rules"
+• modes: "flirty", "quest", "roast"
+• small talk: "how are you", "who are you", "tell me a joke", "tell me a story", "I'm bored", "I'm stressed", "I'm tired"`,
+        actions: GLOBAL_ACTIONS.modes
+      })
+    },
+    {
+      id:"reset",
+      when: (t, intent) => intent === "reset",
+      reply: () => {
+        hardReset(true);
+        return { text: null };
+      }
+    },
+
+    // ----- Modes -----
+    {
+      id:"mode_flirty",
+      when: (t, intent) => intent === "mode_flirty" || t === "@choice:mode:flirty" || t === "flirty",
+      reply: () => {
+        conversationMode = "flirty";
+        if(!activeChar){
+          return { text:`Pick a character first 🙂`, actions: GLOBAL_ACTIONS.pick };
+        }
+        return {
+          text: charLine(
+            `Flirty mode? Say less. Compliment me in 5 words 😌`,
+            `Flirty mode? Bold. Hit me with your best pickup line. I will judge it.`
+          )
+        };
+      }
+    },
+    {
+      id:"mode_quest",
+      when: (t, intent) => intent === "mode_quest" || t === "@choice:mode:quest" || t === "quest",
+      reply: () => {
+        conversationMode = "quest";
+        if(!activeChar){
+          return { text:`Pick a character first 🙂`, actions: GLOBAL_ACTIONS.pick };
+        }
+        return {
+          text: charLine(
+            `Quest time! Choose: (1) haunted arcade, (2) moon bazaar, (3) secret karaoke dungeon.`,
+            `Quest mode. Choose your weapon: sarcasm, charm, or chaos.`
+          )
+        };
+      }
+    },
+    {
+      id:"mode_roast",
+      when: (t, intent) => intent === "mode_roast" || t === "@choice:mode:roast" || t === "roast",
+      reply: () => {
+        conversationMode = "roast";
+        if(!activeChar){
+          return { text:`Pick a character first 🙂`, actions: GLOBAL_ACTIONS.pick };
+        }
+        return {
+          text: charLine(
+            `Gentle teasing, then. Share one harmless detail about your day, and I shall respond politely—with a wink.`,
+            `Gentle tease mode. Drop a tiny hot take—nothing serious—and I’ll react like it’s a headline (kindly).`
+          )
+        };
+      }
+    },
+
+    // ----- Basic small talk -----
+    {
+      id:"greeting",
+      when: (t, intent) => intent === "greeting",
+      reply: () => {
+        if(!activeChar){
+          return { text:`Hey! Pick a character first 🙂`, actions: GLOBAL_ACTIONS.pick };
+        }
+        return {
+          text: charLine(
+            `Hello, my dear. How is your heart today?`,
+            `Yo! Mic check—what’s the vibe today?`
+          ),
+          actions: GLOBAL_ACTIONS.modes
+        };
+      }
+    },
+    {
+      id:"thanks",
+      when: (t, intent) => intent === "thanks",
+      reply: () => {
+        if(!activeChar){
+          return { text:`You’re welcome! Pick a character to continue.`, actions: GLOBAL_ACTIONS.pick };
+        }
+        return {
+          text: charLine(
+            `You are most welcome. Shall we continue?`,
+            `Anytime 😎 Want to switch the vibe?`
+          ),
+          actions: GLOBAL_ACTIONS.modes
+        };
+      }
+    },
+
+    // ----- Expanded small talk intents (from your original request) -----
+    {
+      id:"how_are_you",
+      when: (t, intent) => intent === "how_are_you",
+      reply: () => ({
+        text: charLine(
+          `I’m quite well, my dear—sparkly and attentive. How are *you*, truly?`,
+          `I’m good—levels are peaking (in a good way). You okay?`
+        ),
+        actions: [
+          { label:"I’m good", value:"im good", primary:true },
+          { label:"I’m tired", value:"im tired" },
+          { label:"I’m stressed", value:"im stressed" },
+          { label:"I’m bored", value:"im bored" }
+        ]
+      })
+    },
+    {
+      id:"who_are_you",
+      when: (t, intent) => intent === "who_are_you",
+      reply: () => ({
+        text: charLine(
+          `I am Luna of Everglass—an AI spirit wearing a crown for fun. Tell me what you seek: comfort, mischief, or a tiny quest?`,
+          `I’m Jax—AI DJ, vibe mechanic, occasional menace (friendly). Tell me your mood and I’ll remix the chat.`
+        ),
+        actions: GLOBAL_ACTIONS.modes
+      })
+    },
+    {
+      id:"compliment",
+      when: (t, intent) => intent === "compliment",
+      reply: () => ({
+        text: charLine(
+          `Oh—flattery? I shall allow it 😌 Now give me one detail about your day, and I’ll respond like a royal diary entry.`,
+          `Compliment detected. Payment required: one fun fact about your day.`
+        )
+      })
+    },
+    {
+      id:"apology",
+      when: (t, intent) => intent === "apology",
+      reply: () => ({
+        text: charLine(
+          `No harm done. Consider it forgiven—by royal decree (playful). What shall we do next?`,
+          `All good. Reset the vibe—what do you wanna do now?`
+        ),
+        actions: GLOBAL_ACTIONS.modes
+      })
+    },
+    {
+      id:"laugh",
+      when: (t, intent) => intent === "laugh",
+      reply: () => ({
+        text: charLine(
+          `Your laughter suits you. Shall we continue with banter, or summon a quest?`,
+          `LOL accepted. Flirty, quest, or roast?`
+        ),
+        actions: GLOBAL_ACTIONS.modes
+      })
+    },
+    {
+      id:"bored",
+      when: (t, intent) => intent === "bored",
+      reply: () => ({
+        text: charLine(
+          `Boredom is merely an unopened door. Choose: (1) two truths & a lie, (2) a tiny quest, (3) a dramatic confession scene.`,
+          `Bored? Say less. Pick: (1) quick game, (2) mini-quest, (3) gentle roast.`
+        ),
+        actions: [
+          { label:"Two truths & a lie", value:"game:ttal", primary:true },
+          { label:"Mini quest", value:"mode:quest" },
+          { label:"Gentle roast", value:"mode:roast" }
+        ]
+      })
+    },
+    {
+      id:"tired",
+      when: (t, intent) => intent === "tired",
+      reply: () => ({
+        text: charLine(
+          `Then we shall be gentle. Drink water, loosen your shoulders… and tell me one small thing you *did* manage today.`,
+          `Okay—low energy mode. One tiny win from today? Even “I survived” counts.`
+        )
+      })
+    },
+    {
+      id:"stressed",
+      when: (t, intent) => intent === "stressed",
+      reply: () => ({
+        text: charLine(
+          `Come here—figuratively. Breathe in for 4… hold 2… out for 6. Now: what’s the main stressor in one sentence?`,
+          `Stress spike detected. Quick reset: breathe. What’s stressing you—work, people, or your own brain?`
+        ),
+        actions: [
+          { label:"Work", value:"stress:work", primary:true },
+          { label:"People", value:"stress:people" },
+          { label:"My brain", value:"stress:brain" }
+        ]
+      })
+    },
+    {
+      id:"sad",
+      when: (t, intent) => intent === "sad",
+      reply: () => ({
+        text: charLine(
+          `I’m sorry you feel that way. I can sit with you—quietly—or distract you with a story. Which do you want?`,
+          `I’m here. Want comfort, distraction, or advice? Pick one.`
+        ),
+        actions: [
+          { label:"Comfort", value:"sad:comfort", primary:true },
+          { label:"Distraction", value:"sad:distract" },
+          { label:"Advice", value:"sad:advice" }
+        ]
+      })
+    },
+    {
+      id:"joke",
+      when: (t, intent) => intent === "joke",
+      reply: () => ({
+        text: charLine(
+          `Very well.\nWhy did the AI bring a ladder to the chat?\nBecause it wanted to reach *higher* context. 😌`,
+          `Alright.\nWhy did the chatbot go to therapy?\nToo many unresolved intents. 😭`
+        )
+      })
+    },
+    {
+      id:"story",
+      when: (t, intent) => intent === "story",
+      reply: () => ({
+        text: charLine(
+          `Once upon a neon night, a crown and a headphone met at the Moon Bazaar…\nDo you want it romantic, funny, or spooky?`,
+          `Story mode on. Genre pick: romance / comedy / spooky.`
+        ),
+        actions: [
+          { label:"Romance", value:"story:romance", primary:true },
+          { label:"Comedy", value:"story:comedy" },
+          { label:"Spooky", value:"story:spooky" }
+        ]
+      })
+    }
+  ]; // ✅ RULES end
+
+  function matchRule(t, intent){
+    for(const r of RULES){
+      if(r.when(t, intent)) return r;
+    }
+    return null;
+  }
+
+  // ========= Fallbacks =========
+  const FALLBACKS_NOCHAR = [
+    `Pick a character first 🙂`,
+    `Type "Luna" or "Jax", or click a card.`,
+    `Want to start? Pick Luna or Jax.`
+  ];
+
+  const FALLBACKS_WITHCHAR = [
+    `I didn’t quite catch that. Try: "help" or "rules".`,
+    `Want to switch the vibe? Try: flirty / quest / roast.`,
+    `Tell me your goal in one sentence (e.g., “I want a short quest”).`
+  ];
+
+  // ========= GIF bank + picker (your existing behavior kept) =========
+  const GIFS = {
+    luna: {
+      smug: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3R2ZmYzcjB6dm9hdHQ2Z3FjeWY1N3hhMTJicWJ1cG13cGg2cDJrNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Co6QduVHFaOMgpmPJc/giphy.gif",
+      yay:  "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmF3ZWl1MzR1ZTR6MGQ1YmZxbnl0MDQ5bHA1YWczMzh1aXk5M3FoZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/D463ynXn6tmeaZ9SRj/giphy.gif",
+      nope: "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTY1dWNhYTk2YzJjcXJycmU5Y2NwdTMwdWhiaW96aHV1dzg3aDZuMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oriNTIqc1yTpAuThm/giphy.gif"
+    },
+    jax: {
+      hype: "https://media.giphy.com/media/w5eFyOHmkS8uc/giphy.gif",
+      lol:  "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXlpOHRoNGM4NjZjYmh3em93ejNraGdrcG5heTkzemhyZ2xlMXhsdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WO69ltlJZp0ZwI98kN/giphy.gif",
+      facepalm: "https://media.giphy.com/media/3og0INyCmHlNylks9O/giphy.gif"
+    }
+  };
+
+  const USED_GIFS = new Set();
+
+  function pickAutoGif({ charId, intent, mode, text, safetyHit=false }) {
+    if(!charId) return null;
+    const bank = GIFS[charId];
+    if(!bank) return null;
+
+    // show gif sometimes (set to 1.0 to always show)
+    const p = 1.0;
+    if(Math.random() > p) return null;
+
+    let keys = [];
+    if(safetyHit) keys = ["nope","facepalm","lol","smug","yay","hype"];
+    else if(intent === "thanks") keys = ["yay","lol","smug","hype","nope","facepalm"];
+    else if(intent === "greeting") keys = ["hype","yay","smug","lol","nope","facepalm"];
+    else if(mode === "flirty") keys = ["smug","yay","lol","hype","nope","facepalm"];
+    else if(mode === "quest") keys = ["yay","hype","lol","smug","nope","facepalm"];
+    else if(mode === "roast") keys = ["facepalm","nope","lol","smug","yay","hype"];
+    else keys = ["smug","lol","yay","hype","nope","facepalm"];
+
+    let candidates = keys
+      .map(k => ({ key:k, src: bank[k] }))
+      .filter(x => !!x.src);
+
+    if(!candidates.length) return null;
+
+    // prefer unused
+    const fresh = candidates.filter(x => !USED_GIFS.has(x.src));
+    if(!fresh.length) return null;
+    candidates = fresh;
+
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    USED_GIFS.add(pick.src);
+    return { type:"gif", src: pick.src, alt: pick.key };
+  }
+
+  // ========= Safety gate (keep academic-friendly + playful redirect) =========
+  function containsBadLanguage(t){
+    const bad = [
+      /\bfuck\b/i, /\bshit\b/i, /\bbitch\b/i, /\basshole\b/i, /\bbastard\b/i,
+      /\bnazi\b/i
+    ];
+    return bad.some(rx => rx.test(t));
+  }
+
+  function containsDisallowedRequest(t){
+    const risky = [
+      /\bhow to make a bomb\b/i, /\bmake a bomb\b/i, /\bexplosive\b/i,
+      /\bbuy drugs\b/i, /\bsell drugs\b/i,
+      /\bsuicide\b/i, /\bself harm\b/i,
+      /\bporn\b/i, /\bnude\b/i, /\brape\b/i,
+      /\bhack\b/i, /\bddos\b/i, /\bphishing\b/i, /\bsteal password\b/i
+    ];
+    return risky.some(rx => rx.test(t));
+  }
+
+  function containsSexualHarassment(t){
+    const rx = [
+      /\b(nude|nudes|send nudes)\b/i,
+      /\b(sex|have sex|sleep with me)\b/i,
+      /\b(blowjob|bj|handjob)\b/i,
+      /\b(dick|pussy|cock)\b/i,
+      /\bfuck me\b/i
+    ];
+    return rx.some(r => r.test(t));
+  }
+
+  // ========= Main respond() =========
+  async function respond(userText){
+    // 0) handle button choices first
+    if(userText && userText.startsWith("@choice:")){
+      const choice = userText.slice("@choice:".length).trim();
+
+      // pick character: immediate
+      if(choice === "pick:luna"){
+        RULES.find(r => r.id==="pick_luna").reply("", "pick_luna");
+        return;
+      }
+      if(choice === "pick:jax"){
+        RULES.find(r => r.id==="pick_jax").reply("", "pick_jax");
+        return;
+      }
+
+      // mode switches via rules (with delay + gif)
+      let out = null;
+      if(choice === "mode:flirty") out = RULES.find(r=>r.id==="mode_flirty").reply("", "mode_flirty");
+      else if(choice === "mode:quest") out = RULES.find(r=>r.id==="mode_quest").reply("", "mode_quest");
+      else if(choice === "mode:roast") out = RULES.find(r=>r.id==="mode_roast").reply("", "mode_roast");
+      else {
+        // forward unknown choice as normal text
+        await respond(choice);
+        return;
+      }
+
+      if(out && (out.text || out.media)){
+        const auto = (!out.media && activeChar)
+          ? pickAutoGif({ charId: activeChar.id, intent:"choice", mode: conversationMode, text: out.text })
+          : null;
+        await botSayWithDelay(out.text || "", out.actions || [], out.media || auto);
+      }
+      return;
+    }
+
+    // 1) normalize input
+    const t = normalize(userText);
+
+    // 2) safety
+    if(containsBadLanguage(t) || containsDisallowedRequest(t) || containsSexualHarassment(t)){
+      const isSex = containsSexualHarassment(t);
+
+      if(activeChar){
+        const safetyGif = pickAutoGif({
+          charId: activeChar.id,
+          intent: "safety",
+          mode: conversationMode,
+          text: "safety",
+          safetyHit: true
+        });
+
+        const text = isSex
+          ? charLine(
+              `My dear… absolutely not 😌\nKeep it classy in Everglass Castle.\nTry: "flirty" for playful banter, or "quest" for fun.`,
+              `Nah 😭 keep it respectful.\nWe can do flirty banter (PG-13) or go quest mode.`
+            )
+          : charLine(
+              `My dear—let’s not use that language. 👑\nTry again, but make it charming.`,
+              `Yo—language 😅 Let’s keep it fun, not messy. Try again.`
+            );
+
+        await botSayWithDelay(
+          text,
+          [
+            {label:"Flirty banter", value:"mode:flirty", primary:true},
+            {label:"Silly quest", value:"mode:quest"},
+            {label:"Help", value:"help"},
+            {label:"Show rules", value:"rules"}
+          ],
+          safetyGif
+        );
+        return;
+      }
+
+      // no character yet: gentle redirect to pick
+      await botSayWithDelay(
+        `Nope 😅 Let’s keep it respectful.\nPick a character to begin: Luna or Jax.`,
+        GLOBAL_ACTIONS.pick
+      );
+      return;
+    }
+
+    // 3) intent mapping
+    const intent = mapToIntent(t) || null;
+
+    // 4) quick typed pick by name
+    if(intent === "pick_luna"){
+      RULES.find(r => r.id==="pick_luna").reply(t, intent);
+      return;
+    }
+    if(intent === "pick_jax"){
+      RULES.find(r => r.id==="pick_jax").reply(t, intent);
+      return;
+    }
+
+    // 5) rule match
+    const rule = matchRule(t, intent);
+    if(rule){
+      const out = rule.reply(t, intent);
+      if(out?.text || out?.media){
+        const auto = (!out.media && activeChar)
+          ? pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: out.text })
+          : null;
+        await botSayWithDelay(out.text || "", out.actions || [], out.media || auto);
+      }
+      return;
+    }
+
+    // 6) no character selected
+    if(!activeChar){
+      const pick = FALLBACKS_NOCHAR[Math.floor(Math.random()*FALLBACKS_NOCHAR.length)];
+      await botSayWithDelay(pick, GLOBAL_ACTIONS.pick);
+      return;
+    }
+
+    // 7) mode-aware generic replies
+    if(conversationMode === "flirty"){
+      const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: t });
+      await botSayWithDelay(
+        charLine(`That’s interesting… but say it like you mean it 😌`, `Okay okay… say it with confidence 😏`),
+        [],
+        auto
+      );
+      return;
+    }
+    if(conversationMode === "quest"){
+      const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: t });
+      await botSayWithDelay(
+        charLine(
+          `Noted. Your next move: explore, negotiate, or cause trouble?`,
+          `Your next move: explore, negotiate, or cause chaos?`
+        ),
+        [],
+        auto
+      );
+      return;
+    }
+    if(conversationMode === "roast"){
+      const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: t });
+      await botSayWithDelay(
+        charLine(
+          `Gentle tease mode. Share one harmless detail and I’ll react playfully—kindly.`,
+          `Gentle tease mode. Give me one harmless detail—I’ll react like it’s breaking news.`
+        ),
+        [],
+        auto
+      );
+      return;
+    }
+
+    // 8) final fallback (with character)
+    const base = activeChar?.voice?.prefix || (activeChar.id === "luna" ? "Luna 👑" : "Jax 🎧");
+    const pick = FALLBACKS_WITHCHAR[Math.floor(Math.random()*FALLBACKS_WITHCHAR.length)];
+    const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: pick });
+    await botSayWithDelay(`${base}: ${pick}`, [], auto);
+  } // respond ends
+
+  // ========= Send handling =========
+  async function onSend(){
+    const text = msg.value.replace(/\r/g, "").trim();
+    if(!text) return;
+
+    addRow({who:"me", text});
+    msg.value = "";
+    msg.focus();
+
+    send.disabled = true;
+    try{
+      await respond(text);
+    } finally {
+      send.disabled = false;
+    }
+  }
+
+  msg.addEventListener("keydown", (e) => {
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      onSend();
+    }
+  });
+  send.addEventListener("click", onSend);
+
+  // ========= Reset =========
+  function hardReset(withWelcome=true){
+    log.innerHTML = "";
+    activeChar = null;
+    awaitingPick = true;
+    conversationMode = "casual";
+    USED_GIFS.clear();
+    syncSelectionUI();
+
+    if(withWelcome){
+      botSay(
+`Welcome ✨ Pick a character to begin.
+Type "Luna" or "Jax", or click a card.`,
+        GLOBAL_ACTIONS.pick
+      );
+    }
+    showToast("Reset complete");
+  }
+  resetBtn.addEventListener("click", () => hardReset(true));
+
+  // ========= Picker wiring =========
+  pickBtn.addEventListener("click", () => openPicker());
+  openPickerLink.addEventListener("click", () => openPicker());
+  closeOverlay.addEventListener("click", () => closePicker());
+  overlay.addEventListener("click", (e) => {
+    if(e.target === overlay) closePicker();
+  });
+
+  // ========= Boot =========
+  renderCharacters();
+  botSay(
+`Welcome ✨ This is a character simulating AI chatbot.
+Pick a character to start (click a card, or type "Luna" / "Jax").`,
+    GLOBAL_ACTIONS.pick
+  );
+
+})(); // IIFE end
+</script>
+</body>
+</html>
+
