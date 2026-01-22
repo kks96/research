@@ -103,6 +103,9 @@
       position:absolute; inset:0;
       background: linear-gradient(180deg, rgba(12,12,22,.78), rgba(8,8,14,.86));
       z-index:1;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
     }
 
     /* top bar */
@@ -116,6 +119,7 @@
         radial-gradient(900px 240px at 10% 0%, rgba(236,72,153,.18), transparent 55%),
         radial-gradient(900px 240px at 90% 0%, rgba(56,189,248,.14), transparent 55%),
         linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      flex:0 0 auto;
     }
 
     .brand{
@@ -164,152 +168,13 @@
       user-select:none;
     }
     .chip:hover{filter:brightness(1.08)}
-    .chipDot{
-      width:8px;height:8px;border-radius:999px;
-      background: linear-gradient(135deg, rgba(236,72,153,.95), rgba(56,189,248,.85));
-      box-shadow: 0 0 12px rgba(236,72,153,.35);
-    }
 
     /* Main area layout */
     .main{
-      height:calc(100% - 64px);
+      flex:1 1 auto;
       min-height:0;
       display:grid;
-      grid-template-columns: 320px 1fr;
-      gap:0;
-    }
-
-    @media (max-width: 900px){
-      .main{grid-template-columns: 1fr}
-      .side{display:none}
-      .topbar{padding:10px 12px}
-    }
-
-    /* Sidebar */
-    .side{
-      border-right:1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(800px 420px at 50% 0%, rgba(139,92,246,.12), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      padding:14px;
-      overflow:auto;
-    }
-
-    .sideHeader{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      margin-bottom:10px;
-      gap:10px;
-    }
-
-    .sideTitle{
-      font-weight:900;
-      letter-spacing:-.2px;
-      font-size:14px;
-    }
-    .sideHint{
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    .charGrid{
-      display:grid;
-      gap:12px;
-    }
-
-    .charCard{
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.12);
-      background:
-        linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
-      box-shadow: 0 14px 34px rgba(0,0,0,.30);
-      overflow:hidden;
-      cursor:pointer;
-      transition: transform .15s ease, filter .15s ease, border-color .15s ease;
-      position:relative;
-    }
-    .charCard:hover{
-      transform: translateY(-2px);
-      filter: brightness(1.05);
-      border-color: rgba(255,255,255,.18);
-    }
-
-    .charBanner{
-      height:92px;
-      background:
-        radial-gradient(240px 120px at 20% 20%, rgba(236,72,153,.25), transparent 60%),
-        radial-gradient(240px 120px at 80% 20%, rgba(56,189,248,.20), transparent 60%),
-        linear-gradient(135deg, rgba(139,92,246,.18), rgba(255,255,255,.02));
-      position:relative;
-    }
-    .charBanner::after{
-      content:"";
-      position:absolute; inset:0;
-      background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,.18), transparent 70%);
-      opacity:.14;
-    }
-
-    .charBody{padding:12px}
-    .charRow{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      margin-top:-26px;
-    }
-    .charAvatar{
-      width:52px;height:52px;border-radius:16px;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.05);
-      overflow:hidden;
-      box-shadow: 0 16px 34px rgba(0,0,0,.45);
-      flex:0 0 auto;
-    }
-    .charAvatar img{width:100%;height:100%;object-fit:cover;display:block}
-
-    .charMeta{min-width:0}
-    .charName{
-      font-weight:950;
-      letter-spacing:-.25px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .charTag{
-      font-size:12px;
-      color: rgba(240,245,255,.78);
-      opacity:.9;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .charDesc{
-      margin-top:10px;
-      font-size:12px;
-      color: var(--muted);
-      line-height:1.4;
-    }
-
-    .charCard.selected{
-      outline: 2px solid rgba(56,189,248,.35);
-      box-shadow:
-        0 0 0 1px rgba(56,189,248,.18),
-        0 18px 50px rgba(56,189,248,.10),
-        0 14px 34px rgba(0,0,0,.35);
-    }
-
-    .charCard.locked{
-      opacity: .35;
-      filter: grayscale(1) blur(1px);
-      pointer-events: none;
-      transform: none !important;
-    }
-
-    .charCard.selected{
-      opacity: 1 !important;
-      filter: none !important;
-      pointer-events: auto !important;
+      grid-template-columns: 1fr;
     }
 
     /* Chat panel */
@@ -414,6 +279,7 @@
       display:flex;
       gap:10px;
       align-items:flex-end;
+      flex:0 0 auto;
     }
 
     textarea.input{
@@ -454,12 +320,7 @@
       padding:0 14px 12px;
       color:var(--muted);
       font-size:12px;
-    }
-    .smalllink{
-      color:#fbcfe8;
-      text-decoration:underline;
-      cursor:pointer;
-      font-weight:800;
+      flex:0 0 auto;
     }
 
     /* typing */
@@ -483,56 +344,6 @@
     .dot:nth-child(2){animation-delay:.15s}
     .dot:nth-child(3){animation-delay:.3s}
     @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.55}40%{transform:translateY(-6px);opacity:1}}
-
-    /* modal overlay */
-    .overlay{
-      position:absolute; inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background: rgba(0,0,0,.55);
-      backdrop-filter: blur(10px);
-      z-index:5;
-      padding:18px;
-    }
-    .overlayBox{
-      width:min(560px, 100%);
-      border-radius:20px;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(16,16,28,.82);
-      box-shadow: 0 22px 70px rgba(0,0,0,.55);
-      overflow:hidden;
-    }
-    .overlayHead{
-      padding:12px 14px;
-      border-bottom:1px solid rgba(255,255,255,.10);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      background:
-        radial-gradient(700px 240px at 20% 0%, rgba(236,72,153,.16), transparent 65%),
-        linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-    }
-    .overlayTitle{font-weight:950}
-    .closeX{
-      width:34px;height:34px;border-radius:12px;
-      display:grid;place-items:center;
-      cursor:pointer;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.04);
-      font-weight:950;
-    }
-    .overlayBody{padding:14px; display:grid; gap:12px}
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size:11px;
-      padding:2px 6px;
-      border-radius:8px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.05);
-      color: rgba(245,246,255,.92);
-    }
 
     /* toast */
     .toast{
@@ -567,66 +378,25 @@
           </div>
         </div>
 
-        <div class="chip" id="pickBtn" title="Pick a character (mobile)">
-          <span class="chipDot"></span>
-          <span id="activeCharChip">Pick a character</span>
-        </div>
-
         <div class="chip" id="resetBtn" title="Reset">
           <span>↻</span><span>Reset</span>
         </div>
       </div>
 
       <div class="main">
-        <!-- Sidebar (desktop) -->
-        <aside class="side" id="side">
-          <div class="sideHeader">
-            <div>
-              <div class="sideTitle">Characters</div>
-              <div class="sideHint">Click to chat, or type the name.</div>
-            </div>
-            <div class="sideHint"><span class="kbd">help</span></div>
-          </div>
-
-          <div class="charGrid" id="charGrid"></div>
-
-          <div style="margin-top:14px; font-size:12px; color:rgba(240,245,255,.62); line-height:1.5">
-            <div style="font-weight:900; color:rgba(245,246,255,.90); margin-bottom:6px">Quick tips</div>
-            <div>• Type <span class="kbd">pick</span> to choose a character.</div>
-            <div>• Type <span class="kbd">rules</span> to see what the bot understands.</div>
-            <div>• You can map lots of phrases to one intent.</div>
-          </div>
-        </aside>
-
-        <!-- Chat panel -->
         <section class="panel">
           <div class="log" id="log"></div>
 
           <div class="composer">
             <textarea class="input" id="msg" rows="2"
-              placeholder='Enter = send, Shift+Enter = new line. Example: "pick luna" or "help".'></textarea>
+              placeholder='Enter = send, Shift+Enter = new line. Example: "pick", "Luna", or "Jax".'></textarea>
             <button class="btn" id="send">Send</button>
           </div>
 
           <div class="hintRow">
             <div>English only. AI-based scenarios. Character-aware tone.</div>
-            <div><span class="smalllink" id="openPickerLink">Pick character</span></div>
           </div>
         </section>
-      </div>
-
-      <!-- Mobile character picker overlay -->
-      <div class="overlay" id="overlay">
-        <div class="overlayBox">
-          <div class="overlayHead">
-            <div>
-              <div class="overlayTitle">Pick a character</div>
-              <div style="font-size:12px;color:rgba(240,245,255,.68)">Tap one, or type the name in chat.</div>
-            </div>
-            <div class="closeX" id="closeOverlay">✕</div>
-          </div>
-          <div class="overlayBody" id="overlayBody"></div>
-        </div>
       </div>
 
       <div class="toast" id="toast"></div>
@@ -642,13 +412,6 @@
   const msg = $("msg");
   const send = $("send");
   const resetBtn = $("resetBtn");
-  const charGrid = $("charGrid");
-  const overlay = $("overlay");
-  const overlayBody = $("overlayBody");
-  const pickBtn = $("pickBtn");
-  const openPickerLink = $("openPickerLink");
-  const closeOverlay = $("closeOverlay");
-  const activeCharChip = $("activeCharChip");
   const toast = $("toast");
 
   function nowTime(){
@@ -661,6 +424,7 @@
   function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
 
   function showToast(text){
+    if(!toast) return;
     toast.textContent = text;
     toast.style.display = "block";
     clearTimeout(showToast._t);
@@ -719,61 +483,7 @@
   let activeChar = null;
   let typingRowEl = null;
 
-  // ========= UI: Character cards =========
-  function buildCharCard(ch, isOverlay){
-    const card = document.createElement("div");
-    card.className = "charCard";
-    card.dataset.charId = ch.id;
-
-    card.innerHTML = `
-      <div class="charBanner"></div>
-      <div class="charBody">
-        <div class="charRow">
-          <div class="charAvatar"><img alt="${ch.name}" src="${ch.avatar}"></div>
-          <div class="charMeta">
-            <div class="charName">${ch.name}</div>
-            <div class="charTag">${ch.tagline}</div>
-          </div>
-        </div>
-        <div class="charDesc">${ch.description}</div>
-      </div>
-    `;
-
-    card.addEventListener("click", () => {
-      setActiveCharacter(ch.id);
-      if(isOverlay) closePicker();
-    });
-
-    return card;
-  }
-
-  function renderCharacters(){
-    charGrid.innerHTML = "";
-    overlayBody.innerHTML = "";
-    Characters.forEach(ch => {
-      charGrid.appendChild(buildCharCard(ch, false));
-      overlayBody.appendChild(buildCharCard(ch, true));
-    });
-    syncSelectionUI();
-  }
-
-  function syncSelectionUI(){
-    const hasActive = !!activeChar;
-
-    document.querySelectorAll(".charCard").forEach(el => {
-      const isSel = hasActive && el.dataset.charId === activeChar.id;
-      el.classList.toggle("selected", isSel);
-
-      if(hasActive){
-        el.classList.toggle("locked", !isSel);
-      } else {
-        el.classList.remove("locked");
-      }
-    });
-
-    activeCharChip.textContent = activeChar ? activeChar.name : "Pick a character";
-  }
-
+  // ========= Character helpers =========
   function getIntroForCharacter(ch){
     if(ch.id === "luna"){
       return `Welcome to Everglass Castle.\nTell me your purpose, and I shall respond with grace—wisdom, whimsy, or a playful quest.`;
@@ -789,13 +499,9 @@
     if(!ch) return;
     activeChar = ch;
     awaitingPick = false;
-    syncSelectionUI();
     addSystemRow(`You are now chatting with ${ch.name}.`);
     botSay(getIntroForCharacter(ch)); // immediate intro
   }
-
-  function openPicker(){ overlay.style.display = "flex"; }
-  function closePicker(){ overlay.style.display = "none"; }
 
   // ========= Chat rendering =========
   function addRow({who, text, avatarUrl, actions=[], media=null}){
@@ -963,8 +669,8 @@
   function mapToIntent(t){
     const MAP = [
       { intent:"pick", rx:[ /^pick\b/i, /\bchoose\b/i, /\bselect\b/i, /\bcharacter\b/i, /\bswitch\b/i ]},
-      { intent:"pick_luna", rx:[ /^pick\s+luna\b/i, /^choose\s+luna\b/i, /^select\s+luna\b/i, /\bluna\b/i ]},
-      { intent:"pick_jax",  rx:[ /^pick\s+jax\b/i, /^choose\s+jax\b/i, /^select\s+jax\b/i, /\bjax\b/i ]},
+      { intent:"pick_luna", rx:[ /^pick\s+luna\b/i, /^choose\s+luna\b/i, /^select\s+luna\b/i, /^\s*luna\s*$/i, /\bluna\b/i ]},
+      { intent:"pick_jax",  rx:[ /^pick\s+jax\b/i, /^choose\s+jax\b/i, /^select\s+jax\b/i, /^\s*jax\s*$/i, /\bjax\b/i ]},
 
       { intent:"help",  rx:[ /^help\b/i, /\bwhat can you do\b/i, /\boptions\b/i, /\bhow does this work\b/i, /\bcommands\b/i ]},
       { intent:"rules", rx:[ /^rules\b/i, /\bwhat do you understand\b/i, /\bkeywords\b/i, /\bsupported\b/i ]},
@@ -976,6 +682,18 @@
 
       { intent:"greeting", rx:[ /^(hi|hello|hey|yo|sup)\b/i, /\bgood (morning|afternoon|evening)\b/i ]},
       { intent:"thanks",   rx:[ /^(thanks|thank you|thx|ty)\b/i ]},
+
+      { intent:"how_are_you", rx:[ /^how are you\b/i, /^hru\b/i, /^how r u\b/i ]},
+      { intent:"who_are_you", rx:[ /^who are you\b/i, /^what are you\b/i, /^introduce yourself\b/i ]},
+      { intent:"compliment",  rx:[ /\bcompliment\b/i, /\byou(')?re (cute|awesome|great)\b/i, /\bi like you\b/i ]},
+      { intent:"apology",     rx:[ /^sorry\b/i, /\bmy bad\b/i, /\bi apologize\b/i ]},
+      { intent:"laugh",       rx:[ /\blol\b/i, /\blmao\b/i, /\bhaha\b/i, /\bthat'?s funny\b/i ]},
+      { intent:"bored",       rx:[ /\bi'?m bored\b/i, /\bbored\b/i ]},
+      { intent:"tired",       rx:[ /\bi'?m tired\b/i, /\btired\b/i, /\bsleepy\b/i ]},
+      { intent:"stressed",    rx:[ /\bstressed\b/i, /\banxious\b/i, /\boverwhelmed\b/i ]},
+      { intent:"sad",         rx:[ /\bsad\b/i, /\bdown\b/i, /\bdepressed\b/i ]},
+      { intent:"joke",        rx:[ /\btell me a joke\b/i, /\bjoke\b/i ]},
+      { intent:"story",       rx:[ /\btell me a story\b/i, /\bstory\b/i ]},
     ];
 
     for(const m of MAP){
@@ -986,17 +704,18 @@
 
   // ========= Rules =========
   const RULES = [
+    // start: require character pick
     {
       id:"start_gate",
       when: (t, intent) => awaitingPick && !activeChar,
       reply: () => ({
         text:
 `Welcome ✨ This is an English-only, AI-based character chat.
-Pick a character to begin (click a card, or type: "Luna" / "Jax").`,
+Pick a character to begin by typing "Luna" or "Jax" (or type "pick").`,
         actions: GLOBAL_ACTIONS.pick
       })
     },
-       {
+    {
       id:"pick_shortcut",
       when: (t, intent) => intent === "pick" || t.startsWith("pick "),
       reply: () => ({
@@ -1021,7 +740,7 @@ Pick a character to begin (click a card, or type: "Luna" / "Jax").`,
       }
     },
 
-    // ----- Utility intents -----
+    // help
     {
       id:"help",
       when: (t, intent) => intent === "help",
@@ -1064,7 +783,7 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       }
     },
 
-    // ----- Modes -----
+    // modes
     {
       id:"mode_flirty",
       when: (t, intent) => intent === "mode_flirty" || t === "@choice:mode:flirty" || t === "flirty",
@@ -1114,7 +833,7 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       }
     },
 
-    // ----- Basic small talk -----
+    // greeting / thanks
     {
       id:"greeting",
       when: (t, intent) => intent === "greeting",
@@ -1148,7 +867,7 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       }
     },
 
-    // ----- Expanded small talk intents (from your original request) -----
+    // small talk expansions
     {
       id:"how_are_you",
       when: (t, intent) => intent === "how_are_you",
@@ -1288,7 +1007,7 @@ Tip: You can add tons of aliases to intents for flexibility.`,
         ]
       })
     }
-  ]; // ✅ RULES end
+  ]; // RULES end
 
   function matchRule(t, intent){
     for(const r of RULES){
@@ -1300,8 +1019,8 @@ Tip: You can add tons of aliases to intents for flexibility.`,
   // ========= Fallbacks =========
   const FALLBACKS_NOCHAR = [
     `Pick a character first 🙂`,
-    `Type "Luna" or "Jax", or click a card.`,
-    `Want to start? Pick Luna or Jax.`
+    `Type "Luna" or "Jax" (or "pick").`,
+    `Want to start? Type "Luna" or "Jax".`
   ];
 
   const FALLBACKS_WITHCHAR = [
@@ -1310,7 +1029,7 @@ Tip: You can add tons of aliases to intents for flexibility.`,
     `Tell me your goal in one sentence (e.g., “I want a short quest”).`
   ];
 
-  // ========= GIF bank + picker (your existing behavior kept) =========
+  // ========= GIF bank + picker =========
   const GIFS = {
     luna: {
       smug: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3R2ZmYzcjB6dm9hdHQ2Z3FjeWY1N3hhMTJicWJ1cG13cGg2cDJrNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Co6QduVHFaOMgpmPJc/giphy.gif",
@@ -1360,7 +1079,7 @@ Tip: You can add tons of aliases to intents for flexibility.`,
     return { type:"gif", src: pick.src, alt: pick.key };
   }
 
-  // ========= Safety gate (keep academic-friendly + playful redirect) =========
+  // ========= Safety gate =========
   function containsBadLanguage(t){
     const bad = [
       /\bfuck\b/i, /\bshit\b/i, /\bbitch\b/i, /\basshole\b/i, /\bbastard\b/i,
@@ -1399,11 +1118,13 @@ Tip: You can add tons of aliases to intents for flexibility.`,
 
       // pick character: immediate
       if(choice === "pick:luna"){
-        RULES.find(r => r.id==="pick_luna").reply("", "pick_luna");
+        const r = RULES.find(r => r.id==="pick_luna");
+        if(r) r.reply("", "pick_luna");
         return;
       }
       if(choice === "pick:jax"){
-        RULES.find(r => r.id==="pick_jax").reply("", "pick_jax");
+        const r = RULES.find(r => r.id==="pick_jax");
+        if(r) r.reply("", "pick_jax");
         return;
       }
 
@@ -1479,11 +1200,13 @@ Tip: You can add tons of aliases to intents for flexibility.`,
 
     // 4) quick typed pick by name
     if(intent === "pick_luna"){
-      RULES.find(r => r.id==="pick_luna").reply(t, intent);
+      const r = RULES.find(r => r.id==="pick_luna");
+      if(r) r.reply(t, intent);
       return;
     }
     if(intent === "pick_jax"){
-      RULES.find(r => r.id==="pick_jax").reply(t, intent);
+      const r = RULES.find(r => r.id==="pick_jax");
+      if(r) r.reply(t, intent);
       return;
     }
 
@@ -1581,12 +1304,11 @@ Tip: You can add tons of aliases to intents for flexibility.`,
     awaitingPick = true;
     conversationMode = "casual";
     USED_GIFS.clear();
-    syncSelectionUI();
 
     if(withWelcome){
       botSay(
 `Welcome ✨ Pick a character to begin.
-Type "Luna" or "Jax", or click a card.`,
+Type "Luna" or "Jax", or type "pick".`,
         GLOBAL_ACTIONS.pick
       );
     }
@@ -1594,19 +1316,10 @@ Type "Luna" or "Jax", or click a card.`,
   }
   resetBtn.addEventListener("click", () => hardReset(true));
 
-  // ========= Picker wiring =========
-  pickBtn.addEventListener("click", () => openPicker());
-  openPickerLink.addEventListener("click", () => openPicker());
-  closeOverlay.addEventListener("click", () => closePicker());
-  overlay.addEventListener("click", (e) => {
-    if(e.target === overlay) closePicker();
-  });
-
   // ========= Boot =========
-  renderCharacters();
   botSay(
 `Welcome ✨ This is a character simulating AI chatbot.
-Pick a character to start (click a card, or type "Luna" / "Jax").`,
+Type "Luna" or "Jax" to pick a character (or type "pick").`,
     GLOBAL_ACTIONS.pick
   );
 
@@ -1614,4 +1327,3 @@ Pick a character to start (click a card, or type "Luna" / "Jax").`,
 </script>
 </body>
 </html>
-
