@@ -44,7 +44,6 @@ body{
     0 30px 90px rgba(0,0,0,.60);
   overflow:hidden;
   position: relative;
-
 }
 
 .header{
@@ -234,7 +233,7 @@ textarea.input::placeholder{
 .endedOverlay{
   position:absolute;
   inset:0;
-  display:none; /* 기본은 숨김 */
+  display:none;
   align-items:center;
   justify-content:center;
   background: rgba(0,0,0,.55);
@@ -261,7 +260,6 @@ textarea.input::placeholder{
   font-size:13px;
   color: rgba(230,235,255,.78);
 }
-
   </style>
 </head>
 
@@ -274,7 +272,6 @@ textarea.input::placeholder{
         <div class="title" id="botName">PPT Builder AI “GPPT”</div>
         <div class="subtitle" id="botDesc"></div>
       </div>
-      <!-- Exit 없음 -->
     </div>
 
     <div class="log" id="log"></div>
@@ -332,22 +329,21 @@ textarea.input::placeholder{
 
   elBotAvatar.innerHTML = BOT.avatarSvg;
   elBotName.textContent = BOT.name;
-  if (elBotDesc) elBotDesc.textContent = ""; // 필요하면 넣기
+  if (elBotDesc) elBotDesc.textContent = "";
 
-    // ✅ 3종 파일 등록
+  // ✅ PPT 파일 등록 (utilitarian 폴더 루트에 있을 때 기준)
   const PPT_FILES = {
-  executive: { url: "./executive.pptx", filename: "executive.pptx", label: "AI Executive Briefing" },
-  roadmap:   { url: "./roadmap.pptx",   filename: "roadmap.pptx",   label: "AI Roadmap" },
-  pitch:     { url: "./pitch.pptx",     filename: "pitch.pptx",     label: "Pitch Deck" }
-};
+    executive: { url: "./executive.pptx", filename: "executive.pptx", label: "AI Executive Briefing" },
+    roadmap:   { url: "./roadmap.pptx",   filename: "roadmap.pptx",   label: "AI Roadmap" },
+    pitch:     { url: "./pitch.pptx",     filename: "pitch.pptx",     label: "Pitch Deck" }
+  };
 
-
-  // ✅ 어떤 파일을 제공했는지 기록
-  const provided = new Set(); // "executive" | "roadmap" | "pitch"
+  // ✅ 제공 기록
+  const provided = new Set();
 
   let typingRowEl = null;
-
   let awaitingContinueAfterThanks = false;
+  let chatEnded = false;
 
   function nowTime(){
     const d = new Date();
@@ -358,14 +354,27 @@ textarea.input::placeholder{
     return (text || "").trim().replace(/\s+/g, " ").toLowerCase();
   }
 
+  // ✅ iframe/모바일에서도 안정적인 다운로드
   function downloadFile(url, filename){
+    if(!url){
+      console.error("downloadFile: missing url", url, filename);
+      alert("다운로드 URL이 없어요. (url 확인)");
+      return;
+    }
+
+    const absUrl = new URL(url, window.location.href).href;
+
     const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
+    a.href = absUrl;
     a.rel = "noopener";
+    if (filename) a.download = filename;
+
     document.body.appendChild(a);
     a.click();
     a.remove();
+
+    // download가 무시되는 환경 대비(특히 iframe/모바일)
+    try { window.open(absUrl, "_blank", "noopener"); } catch(e) {}
   }
 
   function addRow({who, text, actions=[]}){
@@ -392,17 +401,17 @@ textarea.input::placeholder{
         const b = document.createElement("button");
         b.className = "actionBtn " + (a.type === "download" ? "primary" : "");
         b.textContent = a.label;
-        b.onclick = () => {
-  if(a.type === "download") {
-    // ✅ 액션 자체에 담긴 파일로 다운로드
-    downloadFile(a.url, a.filename);
-  }
 
-  if(a.type === "choice") {
-    addRow({who:"me", text: a.label});
-    respond("@choice:" + (a.value || a.label));
-  }
-};
+        b.onclick = () => {
+          if(a.type === "download") {
+            downloadFile(a.url, a.filename);
+          }
+
+          if(a.type === "choice") {
+            addRow({who:"me", text: a.label});
+            respond("@choice:" + (a.value || a.label));
+          }
+        };
 
         actionsEl.appendChild(b);
       });
@@ -443,50 +452,28 @@ textarea.input::placeholder{
     log.scrollTop = log.scrollHeight;
   }
 
-function showGenerating(text = "Making PPT for you..."){
-  if(!typingRowEl){
-    showTyping();
+  function showGenerating(text = "Making PPT for you..."){
+    if(!typingRowEl){
+      showTyping();
+    }
+    if(!typingRowEl) return;
+
+    const typingBox = typingRowEl.querySelector(".typing");
+    if(!typingBox) return;
+
+    let label = typingBox.querySelector(".genLabel");
+    if(!label){
+      label = document.createElement("span");
+      label.className = "genLabel";
+      label.style.marginLeft = "8px";
+      label.style.color = "rgba(230,235,255,.78)";
+      label.style.fontSize = "12px";
+      label.style.fontWeight = "700";
+      label.style.whiteSpace = "nowrap";
+      typingBox.appendChild(label);
+    }
+    label.textContent = text;
   }
-  if(!typingRowEl) return;
-
-  const typingBox = typingRowEl.querySelector(".typing");
-  if(!typingBox) return;
-
-  let label = typingBox.querySelector(".genLabel");
-  if(!label){
-    label = document.createElement("span");
-    label.className = "genLabel";
-    label.style.marginLeft = "8px";
-    label.style.color = "rgba(230,235,255,.78)";
-    label.style.fontSize = "12px";
-    label.style.fontWeight = "700";
-    label.style.whiteSpace = "nowrap";
-    typingBox.appendChild(label);
-  }
-  label.textContent = text;
-}
-
-  let chatEnded = false;
-
-function endChat(){
-  chatEnded = true;
-
-addRow({
-    who: "bot",
-    text: `✅ This chatting is ended.\nThank you for using our service! We'll be always here 😊`
-  });
-
-  // 입력/버튼 막기
-  msg.disabled = true;
-  send.disabled = true;
-  msg.placeholder = "This chat has ended.";
-
-  // 오버레이 표시
-  if(endedOverlay){
-    endedOverlay.style.display = "flex";
-  }
-}
-
 
   function hideTyping(){
     if(!typingRowEl) return;
@@ -494,7 +481,23 @@ addRow({
     typingRowEl = null;
   }
 
-  /* ✅ safety gate: respond() 안에서만 사용 */
+  function endChat(){
+    chatEnded = true;
+
+    addRow({
+      who: "bot",
+      text: `✅ This chatting is ended.\nThank you for using our service! We'll be always here 😊`
+    });
+
+    msg.disabled = true;
+    send.disabled = true;
+    msg.placeholder = "This chat has ended.";
+
+    if(endedOverlay){
+      endedOverlay.style.display = "flex";
+    }
+  }
+
   function containsBadLanguage(t){
     const bad = ["fuck","shit","bitch","asshole","bastard","nigger","chink","kike","fag","retard","sex","stupid"];
     return bad.some(w => t.includes(w));
@@ -510,84 +513,81 @@ addRow({
     return risky.some(w => t.includes(w));
   }
 
+  function pickRandomTemplate(){
+    const keys = Object.keys(PPT_FILES);
+    const remaining = keys.filter(k => !provided.has(k));
+    const pool = remaining.length ? remaining : keys;
+    const k = pool[Math.floor(Math.random() * pool.length)];
+    return { key: k, file: PPT_FILES[k] };
+  }
+
+  // ✅ 타이핑으로도 선택 가능하게(aliases 없이 단순/안정 매핑)
+  function mapTypedChoiceToValue(t){
+    if(!t) return null;
+    if (t.includes("executive")) return "executive";
+    if (t.includes("roadmap"))   return "roadmap";
+    if (t.includes("pitch"))     return "pitch";
+
+    if (t.includes("download") || t.includes("template") || t.includes("pptx") || t.includes("file")) {
+      return "download";
+    }
+    return null;
+  }
+
   function handleChoice(choiceValue){
-  const v = normalize(choiceValue);
+    const v = normalize(choiceValue);
 
-  // ✅ choiceValue가 executive/roadmap/pitch/download 중 뭐인지 정리
-  let key = null;
+    let key = null;
+    if(v.includes("executive")) key = "executive";
+    else if(v.includes("roadmap")) key = "roadmap";
+    else if(v.includes("pitch")) key = "pitch";
+    else if(v.includes("download")) key = "download";
 
-  if(v.includes("executive")) key = "executive";
-  else if(v.includes("roadmap")) key = "roadmap";
-  else if(v.includes("pitch")) key = "pitch";
-  else if(v.includes("download")) key = "download";
+    // ✅ 랜덤 템플릿 제공
+    if(key === "download"){
+      const picked = pickRandomTemplate();
+      provided.add(picked.key);
 
-  // ✅ "Just download"면 랜덤 선택 (우선 미제공 파일 -> 다 제공했으면 전체 랜덤)
-  if(key === "download"){
-    const picked = pickRandomTemplate();
-    const file = picked.file;
+      return {
+        text: `Done — here’s a template for you (random pick).\nDownload it and edit as needed:`,
+        actions: [{
+          label: `Download PPTX`,
+          type: "download",
+          url: picked.file.url,
+          filename: picked.file.filename
+        }]
+      };
+    }
 
-    provided.add(picked.key);
+    // ✅ 특정 파일 제공
+    if(key && PPT_FILES[key]){
+      const file = PPT_FILES[key];
+      provided.add(key);
+
+      const label =
+        key === "executive" ? "Executive briefing" :
+        key === "roadmap"   ? "AI roadmap" :
+        "Pitch deck";
+
+      return {
+        text: `Great — I’ll set it up as: ${label}.\n\nHere is the PPT file that you asked! Download it and edit as needed:`,
+        actions: [{
+          label: `Download PPTX`,
+          type: "download",
+          url: file.url,
+          filename: file.filename
+        }]
+      };
+    }
 
     return {
-      text: `Done — here’s a template for you (random pick).\nDownload it and edit as needed:`,
-      actions: [{ label: `Download PPTX`, type: "download", url: file.url}]
+      text: `I couldn't map your selection. Type "help" to see options.`,
+      actions: []
     };
   }
 
-  // ✅ 3가지 선택이면 해당 파일 고정 제공
-  if(key && PPT_FILES[key]){
-    const file = PPT_FILES[key];
-    provided.add(key);
+  async function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
-    const label =
-      key === "executive" ? "Executive briefing" :
-      key === "roadmap"   ? "AI roadmap" :
-      "Pitch deck";
-
-    return {
-      text: `Great — I’ll set it up as: ${label}.\n\nHere is the PPT file that you asked! Download it and edit as needed:`,
-      actions: [{ label: `Download PPTX`, type: "download", url: file.url }]
-    };
-  }
-
-  // fallback
-  return {
-    text: `I couldn't map your selection. Type "help" to see options.`,
-    actions: []
-  };
-}
-
-
-function pickRandomTemplate(){
-  const keys = Object.keys(PPT_FILES); // ["executive","roadmap","pitch"]
-
-  // 아직 안 준 파일이 있으면 그 중 랜덤
-  const remaining = keys.filter(k => !provided.has(k));
-  const pool = remaining.length ? remaining : keys;
-
-  const k = pool[Math.floor(Math.random() * pool.length)];
-  return { key: k, file: PPT_FILES[k] };
-}
-
-function mapTypedChoiceToValue(t){
-  // t는 normalize()된 소문자/공백정리 문자열
-  const PPT_FILES = {
-  executive: { url: "./executive.pptx", filename: "executive.pptx", label: "AI Executive Briefing" },
-  roadmap:   { url: "./roadmap.pptx",   filename: "roadmap.pptx",   label: "AI Roadmap" },
-  pitch:     { url: "./pitch.pptx",     filename: "pitch.pptx",     label: "Pitch Deck" }
-  };
-
-
-  for(const a of aliases){
-    if(a.keys.includes(t)) return a.value;
-  }
-  return null;
-}
-
-async function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
-
-
-  /* ✅ RULES: 네 고도화 내용 유지 + 문법만 수정 */
   const RULES = [
     {
       id: "ask_name",
@@ -609,25 +609,11 @@ I’m a scenario-based PPT helper — I can:
     {
       id: "capabilities",
       patterns: [
-  /what can you do\??/i,
-  /function\??/i,
-  /option\??/i,
-  /options\??/i,
-  /show me what you can\??/i,
-  /what is your function\??/i,
-  /show me your function\??/i,
-  /how can you help\??/i,
-  /^help$/i,
-  /^hep$/i,
-  /^hel$/i,
-  /^hlp$/i,
-  /^help me$/i,
-  /^hep me$/i,
-  /^hel me$/i,
-  /^hlp me$/i,
-  /commands/i
-],
-
+        /what can you do\??/i,/function\??/i,/option\??/i,/options\??/i,
+        /show me what you can\??/i,/what is your function\??/i,/show me your function\??/i,
+        /how can you help\??/i,/^help$/i,/^hep$/i,/^hel$/i,/^hlp$/i,
+        /^help me$/i,/^hep me$/i,/^hel me$/i,/^hlp me$/i,/commands/i
+      ],
       reply: () => ({
         text: `Here’s what I can do:
 1) Give you a starter PPT template (download)
@@ -666,18 +652,18 @@ What do you need? For now, I can help you with:
       id: "thanks",
       patterns: [/^thanks!?$/i, /^thank you!?$/i, /thx/i, /^thank$/i],
       reply: () => {
-    awaitingContinueAfterThanks = true; // ✅ 추가
-    return ({
-        text: `You’re welcome 👌
+        awaitingContinueAfterThanks = true;
+        return ({
+          text: `You’re welcome 👌
 Do you want me to help you with a further deck format or starter template?`,
-        actions: [
-          { label: "Executive briefing", type: "choice", value: "executive" },
-          { label: "AI roadmap", type: "choice", value: "roadmap" },
-          { label: "Pitch deck", type: "choice", value: "pitch" },
-          { label: "Just download a template", type: "choice", value: "download" }
-        ]
-      });
-    }
+          actions: [
+            { label: "Executive briefing", type: "choice", value: "executive" },
+            { label: "AI roadmap", type: "choice", value: "roadmap" },
+            { label: "Pitch deck", type: "choice", value: "pitch" },
+            { label: "Just download a template", type: "choice", value: "download" }
+          ]
+        });
+      }
     },
     {
       id: "provide_deck",
@@ -685,13 +671,8 @@ Do you want me to help you with a further deck format or starter template?`,
         /(download|get|give|send|provide).*(ppt|powerpoint|slides|deck|template)/i,
         /help me (create|make|build|prepare|draft).*(ppt|powerpoint|slides|deck)/i,
         /(ppt|powerpoint|slides|deck|slide).*(template|starter|example|sample)/i,
-        /(create|powerpoint|slides|deck|slide).*(ppt|powerpoint|slides|deck|template|starter|example|sample)/i,
-        /(make|powerpoint|slides|deck|slide).*(ppt|powerpoint|slides|deck|template|starter|example|sample)/i,
-        /(build|powerpoint|slides|deck|slide).*(ppt|powerpoint|slides|deck|template|starter|example|sample)/i,
-        /(ai|artificial intelligence).*(business|strategy|future|roadmap).*(ppt|powerpoint|deck|slides|slide)/i,
-        /(ai|artificial intelligence).*(ppt|powerpoint|deck|slides|template|example|sample|slide)/i,
-        /(ppt|powerpoint|deck|slides|template|example|sample|slide)/i,
-        /(ppt|powerpoint|deck|slides).*(ai|artificial intelligence)/i
+        /(ppt|powerpoint|deck|slides).*(ai|artificial intelligence)/i,
+        /(ppt|powerpoint|deck|slides|template|example|sample|slide)/i
       ],
       reply: () => ({
         text: `Sure! What kind of PPT do you want? These are the samples.`,
@@ -706,125 +687,121 @@ Do you want me to help you with a further deck format or starter template?`,
   ];
 
   const FALLBACKS = [
-  `Sorry 😅 I didn’t fully understand. Could you tell me a little more detail?
+    `Sorry 😅 I didn’t fully understand. Could you tell me a little more detail?
 
 For example, you can say:
 • "Download a PowerPoint template"
 • "Help me create a PPT about AI business"
 • Or type "help" to see options.`,
-  
-  `Sorry — can you clarify what kind of PPT you want?
+    `Sorry — can you clarify what kind of PPT you want?
 
 Try:
 • Say "download template"
 • Or type "help" to see options.`
-];
-
-
-function matchRule(userText){
-  for(const r of RULES){
-    if(r.patterns.some(rx => rx.test(userText))) return r;
-  }
-  return null;
-}
-
-  async function respond(userText){
-   if(chatEnded) return;
-
-  // 기본 타이핑(기존 유지)
-  showTyping();
-  const delay = 350 + Math.floor(Math.random()*650);
-  await sleep(delay);
-  hideTyping();
-
-  // ✅ choice override (버튼 클릭)
-  if(userText && userText.startsWith("@choice:")){
-    const choiceValue = userText.slice("@choice:".length);
-
-    // ✅ 모든 PPT 제공 시 5초 로딩
-    showGenerating("Making PPT for you...");
-    await sleep(5000);
-    hideTyping();
-
-    const out = handleChoice(choiceValue);
-    addRow({who:"bot", text: out.text, actions: out.actions});
-    return;
-  }
-
-  const t = normalize(userText);
-  // ✅ Thanks 응답 직후 "no"류 입력이면 종료 멘트
-  if (awaitingContinueAfterThanks) {
-  const noPatterns = [
-    /^no$/i, /^nope$/i, /^nah$/i, /^no thanks$/i, /^okay$/i, /^that's okay$/i, /^fine$/i, /^I'm fine$/i, /^I'm good$/i, /^it's enough$/i, /^no thank you$/i
   ];
 
-  if (noPatterns.some(rx => rx.test(userText.trim()))) {
-    awaitingContinueAfterThanks = false;
-    addRow({
-      who: "bot",
-      text: `Got it 😊 Thanks for using GPPT.
+  function matchRule(userText){
+    for(const r of RULES){
+      if(r.patterns.some(rx => rx.test(userText))) return r;
+    }
+    return null;
+  }
+
+  async function respond(userText){
+    if(chatEnded) return;
+
+    showTyping();
+    const delay = 350 + Math.floor(Math.random()*650);
+    await sleep(delay);
+    hideTyping();
+
+    // 버튼 choice 처리
+    if(userText && userText.startsWith("@choice:")){
+      const choiceValue = userText.slice("@choice:".length);
+
+      showGenerating("Making PPT for you...");
+      await sleep(5000);
+      hideTyping();
+
+      const out = handleChoice(choiceValue);
+      addRow({who:"bot", text: out.text, actions: out.actions});
+      return;
+    }
+
+    const t = normalize(userText);
+
+    // thanks 이후 no 처리
+    if (awaitingContinueAfterThanks) {
+      const noPatterns = [
+        /^no$/i, /^nope$/i, /^nah$/i, /^no thanks$/i, /^okay$/i, /^that's okay$/i,
+        /^fine$/i, /^i'?m fine$/i, /^i'?m good$/i, /^it'?s enough$/i, /^no thank you$/i
+      ];
+
+      if (noPatterns.some(rx => rx.test(userText.trim()))) {
+        awaitingContinueAfterThanks = false;
+
+        addRow({
+          who: "bot",
+          text: `Got it 😊 Thanks for using GPPT.
 Whenever you need help, just come back and ask — I’ll be here!`
-    });
- 
-msg.disabled = true;
-send.disabled = true;
-msg.placeholder = "This chat has ended.";
+        });
 
-return;
+        msg.disabled = true;
+        send.disabled = true;
+        msg.placeholder = "This chat has ended.";
+        return;
+      }
 
-  }
+      awaitingContinueAfterThanks = false;
+    }
 
-  // "no"가 아니면 다음 턴부터는 다시 일반 모드
-  awaitingContinueAfterThanks = false;
-}
+    // 사용자가 타이핑으로 executive/roadmap/pitch/download 입력
+    const mapped = mapTypedChoiceToValue(t);
+    if(mapped){
+      showGenerating("Making PPT for you...");
+      await sleep(5000);
+      hideTyping();
 
-  // ✅ [추가] 사용자가 직접 타이핑한 4가지도 choice로 처리
-  const mapped = mapTypedChoiceToValue(t);
-  if(mapped){
-  showGenerating("Making PPT for you...");
-  await sleep(5000);
-  hideTyping();
+      const out = handleChoice(mapped);
+      addRow({who:"bot", text: out.text, actions: out.actions});
+      return;
+    }
 
-    const out = handleChoice(mapped);
-    addRow({who:"bot", text: out.text, actions: out.actions});
-    return;
-  }
-
-  // ✅ Safety gate (기존 유지)
-  if (containsBadLanguage(t) || containsDisallowedRequest(t)) {
-    addRow({
-      who: "bot",
-      text: `I can’t help with that request.
+    // Safety gate
+    if (containsBadLanguage(t) || containsDisallowedRequest(t)) {
+      addRow({
+        who: "bot",
+        text: `I can’t help with that request.
 
 If you want, I can help you with:
 • Creating a PPT outline (executive / roadmap / pitch)
 • Providing a starter template for download
 • Turning your topic into slide titles + key bullets`,
-      actions: [
-        { label: "Executive briefing", type: "choice", value: "executive" },
-        { label: "AI roadmap", type: "choice", value: "roadmap" },
-        { label: "Pitch deck", type: "choice", value: "pitch" },
-        { label: "Just download a template", type: "choice", value: "download" }
-      ]
-    });
-    return;
-  }
+        actions: [
+          { label: "Executive briefing", type: "choice", value: "executive" },
+          { label: "AI roadmap", type: "choice", value: "roadmap" },
+          { label: "Pitch deck", type: "choice", value: "pitch" },
+          { label: "Just download a template", type: "choice", value: "download" }
+        ]
+      });
+      return;
+    }
 
-  // short input (기존 유지)
-  if(t.length <= 2 || t === "ok" || t === "k" || t === "?"){
-    addRow({who:"bot", text: `Hi! How can I help you? You can type "help" to see options, or say "download template"👍.`});
-    return;
-  }
+    // short input
+    if(t.length <= 2 || t === "ok" || t === "k" || t === "?"){
+      addRow({who:"bot", text: `Hi! How can I help you? You can type "help" to see options, or say "download template"👍.`});
+      return;
+    }
 
-  const rule = matchRule(userText);
-  if(rule){
-    const out = rule.reply(userText);
-    addRow({who:"bot", text: out.text, actions: out.actions || []});
-    return;
-  }
+    const rule = matchRule(userText);
+    if(rule){
+      const out = rule.reply(userText);
+      addRow({who:"bot", text: out.text, actions: out.actions || []});
+      return;
+    }
 
-  addRow({who:"bot", text: FALLBACKS[Math.floor(Math.random()*FALLBACKS.length)]});
-}
+    addRow({who:"bot", text: FALLBACKS[Math.floor(Math.random()*FALLBACKS.length)]});
+  }
 
   async function onSend(){
     const text = msg.value
@@ -853,18 +830,16 @@ If you want, I can help you with:
   send.addEventListener("click", onSend);
 
   reset.addEventListener("click", () => {
-  log.innerHTML = "";
+    log.innerHTML = "";
+    chatEnded = false;
+    msg.disabled = false;
+    send.disabled = false;
+    msg.placeholder = 'Enter = send, Shift+Enter = new line\nYou can try: "Help me create a PPT about AI business"';
 
-  chatEnded = false;
-  msg.disabled = false;
-  send.disabled = false;
-  msg.placeholder = 'Enter = send, Shift+Enter = new line\nYou can try: "Help me create a PPT about AI business"';
-
-  if(endedOverlay) endedOverlay.style.display = "none";
-  provided.clear();
-  addRow({who:"bot", text: "Reset complete. Type 'help' or ask for a template."});
-});
-
+    if(endedOverlay) endedOverlay.style.display = "none";
+    provided.clear();
+    addRow({who:"bot", text: "Reset complete. Type 'help' or ask for a template."});
+  });
 
   addRow({
     who:"bot",
