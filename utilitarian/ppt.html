@@ -336,10 +336,10 @@ textarea.input::placeholder{
 
     // ✅ 3종 파일 등록
   const PPT_FILES = {
-    executive: { url: "./executive.pptx", filename: "executive.pptx", label: "AI Executive Briefing" },
-    roadmap:   { url: "./AI_roadmap.pptx",   filename: "roadmap.pptx",   label: "AI Roadmap" },
-    pitch:     { url: "./peck.pptx",   filename: "pitch_Deck.pptx",   label: "Pitch Deck" }
-  };
+  executive: { url: "./executive.pptx", filename: "executive.pptx", label: "AI Executive Briefing" },
+  roadmap:   { url: "./roadmap.pptx",   filename: "roadmap.pptx",   label: "AI Roadmap" },
+  pitch:     { url: "./pitch.pptx",     filename: "pitch.pptx",     label: "Pitch Deck" }
+};
 
   // ✅ 어떤 파일을 제공했는지 기록
   const provided = new Set(); // "executive" | "roadmap" | "pitch"
@@ -529,7 +529,7 @@ addRow({
 
     return {
       text: `Done — here’s a template for you (random pick).\nDownload it and edit as needed:`,
-      actions: [{ label: `Download PPTX`, type: "download", url: file.url}]
+      actions: [{ label: `Download PPTX`, type: "download", url: file.url, filename: file.filename }]
     };
   }
 
@@ -545,7 +545,7 @@ addRow({
 
     return {
       text: `Great — I’ll set it up as: ${label}.\n\nHere is the PPT file that you asked! Download it and edit as needed:`,
-      actions: [{ label: `Download PPTX`, type: "download", url: file.url }]
+      actions: [{ label: `Download PPTX`, type: "download", url: file.url, filename: file.filename }]
     };
   }
 
