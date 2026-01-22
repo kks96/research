@@ -472,7 +472,7 @@ function endChat(){
 
 addRow({
     who: "bot",
-    text: `✅ 채팅이 끝났습니다.\n사용해주셔서 감사합니다! 언제든지 다시 도움이 필요하면 말씀해 주세요 😊`
+    text: `✅ This chatting is ended.\nThank you for using our service! We'll be always here 😊`
   });
 
   // 입력/버튼 막기
@@ -570,12 +570,12 @@ function pickRandomTemplate(){
 
 function mapTypedChoiceToValue(t){
   // t는 normalize()된 소문자/공백정리 문자열
-  const aliases = [
-    { value: "executive", keys: ["executive briefing", "executive", "briefing", "exec briefing", "exec"] },
-    { value: "roadmap",    keys: ["ai roadmap", "roadmap", "ai road map", "road map"] },
-    { value: "pitch",      keys: ["pitch deck", "pitch", "pitching", "investor pitch"] },
-    { value: "download",   keys: ["download", "template", "starter deck", "starter", "just download a template"] }
-  ];
+  const PPT_FILES = {
+  executive: { url: "./ppt/executive.pptx", filename: "executive.pptx", label: "AI Executive Briefing" },
+  roadmap:   { url: "./ppt/roadmap.pptx",   filename: "roadmap.pptx",   label: "AI Roadmap" },
+  pitch:     { url: "./ppt/pitch.pptx",     filename: "pitch.pptx",     label: "Pitch Deck" }
+  };
+
 
   for(const a of aliases){
     if(a.keys.includes(t)) return a.value;
