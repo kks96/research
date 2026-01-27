@@ -152,14 +152,7 @@ body{
     max-width: 92% !important;
   }
 }
-    
-.bubble{
-  word-break: break-word !important;
-  overflow-wrap: anywhere !important;
-  hyphens: auto;
 
-  overflow: hidden !important;
-}
 .row.bot .bubble{
   background:
     linear-gradient(160deg, rgba(139,92,246,.22), rgba(255,255,255,.02)) !important;
@@ -180,25 +173,6 @@ body{
 
 .meta{font-size:11px;color:var(--muted);margin-top:4px}
 
-/* =========================
-   Fix: bubbles look too wide
-   ========================= */
-
-/* bubble+meta를 담는 래퍼(div)가 남는 폭을 먹지 않게 */
-.row > div{
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-
-  flex: 0 1 auto;       /* ✅ 남는 폭 먹지 말고 내용 기반 */
-  width: fit-content;   /* ✅ 내용만큼만 */
-  max-width: min(86%, 700px); /* ✅ 너무 넓어지지 않게 */
-}
-
-/* 내 메시지는 오른쪽 정렬 */
-.row.me > div{
-  align-items: flex-end;
-}
 
 /* meta가 block이라 폭을 키우는 걸 방지 */
 .meta{
@@ -284,7 +258,7 @@ textarea.input::placeholder{
 
 .actionBtn{
   max-width: 100%;
-  min-width: 0;
+  min-width: 120px;
   flex: 1 1 auto;          /* ✅ 버튼이 줄어들 수 있게 */
   white-space: normal;     /* ✅ 한 줄 고정 해제 */
   overflow-wrap: anywhere; /* ✅ 긴 단어도 줄바꿈 */
