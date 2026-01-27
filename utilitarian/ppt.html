@@ -821,22 +821,22 @@ If you want, I can help you with:
   }
 
   async function onSend(){
-    const text = msg.value
-      .replace(/[\r\n\u2028\u2029]+/g, " ")
-      .replace(/\t+/g, " ")
-      .replace(/\s{2,}/g, " ")
-      .trim();
+  // ✅ 줄바꿈은 유지 (Shift+Enter 입력도 그대로)
+  const text = (msg.value || "")
+    .replace(/\t+/g, " ")
+    .replace(/\r/g, "")          // 윈도우 CR만 제거
+    .trimEnd();                  // 끝 공백만 정리 (앞쪽은 유지)
 
-    if(!text) return;
+  if(!text.trim()) return;
 
-    addRow({who:"me", text});
-    msg.value = "";
-    msg.focus();
+  addRow({who:"me", text});
+  msg.value = "";
+  msg.focus();
 
-    send.disabled = true;
-    try{ await respond(text); }
-    finally{ send.disabled = false; }
-  }
+  send.disabled = true;
+  try{ await respond(text); }
+  finally{ send.disabled = false; }
+}
 
   msg.addEventListener("keydown", (e) => {
     e.stopPropagation();
