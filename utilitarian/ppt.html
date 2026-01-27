@@ -81,7 +81,7 @@ body{
 
 .row{display:flex;gap:10px;margin:10px 0;align-items:flex-end}
 .row.me{justify-content:flex-end}
-.row > div{
+.row .msgWrap{
   display:flex;
   flex-direction:column;
   align-items:flex-start;
@@ -90,7 +90,7 @@ body{
   width: fit-content;
   max-width: min(86%, 700px);
 
-  min-width: 0;  /* ✅ 안전장치: hi가 찢어지지 않게 */
+  min-width: 120px;
 }
 
 .row.me > div{
@@ -466,6 +466,7 @@ textarea.input::placeholder{
     }
 
     const wrap = document.createElement("div");
+    wrap.className = "msgWrap";
     const bubble = document.createElement("div");
     bubble.className = "bubble";
     bubble.textContent = text;
