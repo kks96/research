@@ -100,20 +100,25 @@ body{
 }
 
 .bubble{
-  display:inline-block !important;
+  /* ✅ 내용 길이에 맞춰서 줄어들게 */
+  display: inline-flex !important;
+  align-items: flex-start;
+  width: fit-content !important;
 
-  /* ✅ 가로 충분히 확보 */
-  max-width: min(90%, 820px) !important;
-  min-width: 180px;              /* ← 이게 없으면 hi도 찢어짐 */
+  /* ✅ 너무 넓어지지만 않게 */
+  max-width: min(86%, 700px) !important;
+
+  /* ✅ 데스크톱에선 고정 최소폭 없애기 */
+  min-width: 0 !important;
 
   padding:10px 12px !important;
   border-radius:14px !important;
   line-height:1.45 !important;
 
-  /* ✅ 줄바꿈 규칙 (핵심) */
+  /* ✅ 줄바꿈 규칙 */
   white-space: pre-wrap !important;
-  word-break: normal !important;          /* ❌ 글자 단위 금지 */
-  overflow-wrap: break-word !important;   /* ⭕ 단어 단위만 */
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
   letter-spacing: 0 !important;
 
   color: var(--text) !important;
@@ -130,8 +135,7 @@ body{
 
 @media (max-width: 480px){
   .bubble{
-    max-width: 96% !important;
-    min-width: 220px;   /* 모바일에서 특히 중요 */
+    max-width: 92% !important;
   }
 }
     
