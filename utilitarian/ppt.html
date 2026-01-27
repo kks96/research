@@ -101,19 +101,20 @@ body{
 
 .bubble{
   display:inline-block !important;
-  max-width:min(90%, 820px) !important;
-  min-width:160px;                 /* ✅ 짧은 단어가 2줄로 쪼개지는 것 방지 */
+
+  /* ✅ 가로 충분히 확보 */
+  max-width: min(90%, 820px) !important;
+  min-width: 180px;              /* ← 이게 없으면 hi도 찢어짐 */
+
   padding:10px 12px !important;
   border-radius:14px !important;
   line-height:1.45 !important;
 
-  white-space:pre-wrap !important;
-
-  /* ✅ 여기 2줄이 핵심: 글자단위 쪼개기 방지 + 긴 URL만 적당히 줄바꿈 */
-  word-break: normal !important;
-  overflow-wrap: break-word !important;
-
-  hyphens: auto;
+  /* ✅ 줄바꿈 규칙 (핵심) */
+  white-space: pre-wrap !important;
+  word-break: normal !important;          /* ❌ 글자 단위 금지 */
+  overflow-wrap: break-word !important;   /* ⭕ 단어 단위만 */
+  letter-spacing: 0 !important;
 
   color: var(--text) !important;
 
@@ -130,7 +131,7 @@ body{
 @media (max-width: 480px){
   .bubble{
     max-width: 96% !important;
-    min-width: 200px;
+    min-width: 220px;   /* 모바일에서 특히 중요 */
   }
 }
     
