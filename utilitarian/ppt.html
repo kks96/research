@@ -101,14 +101,18 @@ body{
 
 .bubble{
   display:inline-block !important;
-  max-width:min(90%, 700px) !important;
+  max-width:min(90%, 820px) !important;
+  min-width:160px;                 /* ✅ 짧은 단어가 2줄로 쪼개지는 것 방지 */
   padding:10px 12px !important;
   border-radius:14px !important;
   line-height:1.45 !important;
 
   white-space:pre-wrap !important;
-  word-break: break-word !important;   /* 긴 영어/URL도 자르기 */
-  overflow-wrap: anywhere !important;  /* 공백 없어도 줄바꿈 */
+
+  /* ✅ 여기 2줄이 핵심: 글자단위 쪼개기 방지 + 긴 URL만 적당히 줄바꿈 */
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+
   hyphens: auto;
 
   color: var(--text) !important;
@@ -122,6 +126,14 @@ body{
     0 10px 24px rgba(0,0,0,.40),
     inset 0 0 14px rgba(139,92,246,.12);
 }
+
+@media (max-width: 480px){
+  .bubble{
+    max-width: 96% !important;
+    min-width: 200px;
+  }
+}
+    
 .bubble{
   word-break: break-word !important;
   overflow-wrap: anywhere !important;
@@ -289,13 +301,12 @@ textarea.input::placeholder{
   color: rgba(230,235,255,.78);
 }
 
-/* ✅ Mobile compact mode (inside iframe page) */
 @media (max-width: 480px){
-
-  /* Android/Chrome 쪽: 전체 축소 */
-  body{
-    zoom: 0.86; /* 필요하면 0.80~0.92로 조절 */
+  .wrap{
+    transform: scale(0.92);
+    transform-origin: top center;
   }
+}
 
   /* iOS Safari/webview 대비: wrap 자체도 축소 + 폭 보정 */
   .wrap{
