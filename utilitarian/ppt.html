@@ -90,7 +90,7 @@ body{
   width: fit-content;
   max-width: min(86%, 700px);
 
-  min-width: 120px;  /* ✅ 안전장치: hi가 찢어지지 않게 */
+  min-width: 0;  /* ✅ 안전장치: hi가 찢어지지 않게 */
 }
 
 .row.me > div{
@@ -123,7 +123,7 @@ body{
   max-width: 100% !important;
 
   /* ✅ 데스크톱에선 고정 최소폭 없애기 */
-  min-width: 120px !important;
+  min-width: 0 !important;
 
   padding:10px 12px !important;
   border-radius:14px !important;
