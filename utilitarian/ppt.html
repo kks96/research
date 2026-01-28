@@ -30,6 +30,8 @@ body{
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   background:var(--bg);
   color:var(--text);
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .wrap{max-width:900px;margin:0 auto;padding:16px}
@@ -71,7 +73,8 @@ body{
 
 .log{
   height:520px;
-  overflow:auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding:14px;
   background:
     radial-gradient(900px 500px at 30% 0%, rgba(139,92,246,.14), transparent 60%),
@@ -266,11 +269,11 @@ textarea.input::placeholder{
 
 .actionBtn{
   max-width: 100%;
-  min-width: 120px;
-  flex: 1 1 auto;          /* ✅ 버튼이 줄어들 수 있게 */
-  white-space: normal;     /* ✅ 한 줄 고정 해제 */
-  overflow-wrap: anywhere; /* ✅ 긴 단어도 줄바꿈 */
-  word-break: break-word;  /* ✅ 영문/URL 끊기 */
+  min-width: 0;          /* ✅ 120px -> 0으로 */
+  flex: 1 1 auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 @media (max-width: 480px){
