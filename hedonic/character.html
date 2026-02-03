@@ -59,21 +59,23 @@
       0%{transform:translate3d(0,0,0) scale(1)}
       100%{transform:translate3d(-12px, 10px,0) scale(1.03)}
     }
-
+html, body { height: 100%; }
+body { margin:0; }
+    
     .wrap{
   max-width: 980px;
   width: 100%;
+  height: 100%;          /* ✅ 추가 */
   margin: 0 auto;
   padding: 16px;
 }
-
 
     /* Main card */
     .card{
       width: 100%;
       max-width: 980px;
-      height: auto;          /* ← 핵심 */
-      max-height: none;
+      height: 100%;          /* ✅ 추가 */
+      min-height: 520px; 
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
       border:1px solid rgba(255,255,255,.12);
       border-radius: var(--radius);
@@ -103,13 +105,16 @@
     @keyframes spin{to{transform:rotate(360deg)}}
 
     .cardInner{
-      position:absolute; inset:0;
-      background: linear-gradient(180deg, rgba(12,12,22,.78), rgba(8,8,14,.86));
-      z-index:1;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-    }
+  position: relative;    /* ✅ absolute 제거 */
+  inset: auto;           /* ✅ 의미 없지만 혹시 남아있으면 무력화 */
+  width: 100%;
+  height: 100%;          /* ✅ 추가 */
+  background: linear-gradient(180deg, rgba(12,12,22,.78), rgba(8,8,14,.86));
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
 
     /* top bar */
     .topbar{
@@ -191,7 +196,7 @@
 
     .log{
       flex:1;
-      min-height:520px;
+      min-height:0;
       overflow:auto;
       padding:16px;
       background:
