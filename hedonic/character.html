@@ -400,38 +400,42 @@ body { margin:0; }
 </head>
 
 <body>
-<div class="bokeh"></div>
+  <div class="bokeh"></div>
 
-<div class="wrap">
-  <div class="card" id="card">
-    <div class="cardInner">
-      <div class="topbar">
-        <div class="brand">
-          <div class="brandIcon" aria-hidden="true">✨</div>
-          <div class="brandText">
-            <div class="brandTitle" id="appTitle">AI Character Chat</div>
+  <div class="wrap">
+    <div class="card" id="card">
+      <div class="cardInner">
+
+        <div class="topbar">
+          <div class="brand">
+            <div class="brandIcon" aria-hidden="true">✨</div>
+            <div class="brandText">
+              <div class="brandTitle" id="appTitle">AI Character Chat</div>
+            </div>
+          </div>
+
+          <div class="chip" id="resetBtn" title="Reset">
+            <span>↻</span><span>Reset</span>
           </div>
         </div>
 
-        <div class="chip" id="resetBtn" title="Reset">
-          <span>↻</span><span>Reset</span>
+        <div class="main">
+          <section class="panel">
+            <div class="log" id="log"></div>
+
+            <div class="composer">
+              <textarea class="input" id="msg" rows="2"
+                placeholder='Enter = send, Shift+Enter = new line. Example: "pick", "Luna", or "Jax".'></textarea>
+              <button class="btn" id="send">Send</button>
+            </div>
+          </section>
         </div>
+
+        <div class="toast" id="toast"></div>
+
       </div>
-
-      <div class="main">
-        <section class="panel">
-          <div class="log" id="log"></div>
-
-          <div class="composer">
-            <textarea class="input" id="msg" rows="2"
-              placeholder='Enter = send, Shift+Enter = new line. Example: "pick", "Luna", or "Jax".'></textarea>
-            <button class="btn" id="send">Send</button>
-          </div>
-
-      <div class="toast" id="toast"></div>
     </div>
   </div>
-</div>
 
 <script>
 (function(){
