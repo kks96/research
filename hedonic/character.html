@@ -466,7 +466,6 @@
     send.disabled = true;
     msg.placeholder = reason;
     
-    // 화면에 남은 선택지 버튼들도 모두 비활성화
     const actionBtns = log.querySelectorAll('.actionBtn');
     actionBtns.forEach(btn => {
       btn.disabled = true;
@@ -572,8 +571,7 @@
       bubble.appendChild(t);
     }
 
-    // ✨ URL이 실제로 존재할 때만 이미지를 렌더링하도록 조건 추가 (빈 문자열이면 무시)
-    if(media && media.type === "gif" && media.src && !media.src.includes("YOUR_")){
+    if(media && media.type === "gif" && media.src){
       const img = document.createElement("img");
       img.src = media.src;
       img.alt = media.alt || "gif";
@@ -717,7 +715,6 @@
   // ========= Intents =========
   function mapToIntent(t){
     const MAP = [
-      // ✨ 추가: 작별 인사 의도 파악
       { intent:"bye", rx:[ /\b(bye|goodbye|quit|leave|exit|cya|see ya)\b/i ]}, 
 
       { intent:"pick", rx:[ /^pick\b/i, /\bchoose\b/i, /\bselect\b/i, /\bcharacter\b/i, /\bswitch\b/i ]},
@@ -756,19 +753,15 @@
 
   // ========= Rules =========
   const RULES = [
-    // ✨ 추가: 마지막 대화 (bye) 룰 및 채팅 잠금 기능
     {
       id:"bye",
       when: (t, intent) => intent === "bye",
       reply: () => {
-        // 타이머를 두어 대사가 렌더링된 후 잠금 처리
         setTimeout(() => lockChat("The chat is locked. Press Reset to start a new conversation."), 1200);
         
-        // 🎯 [여기에 GIF 링크를 나중에 입력하세요]
-        // 큰따옴표("") 안에 사용할 GIF 이미지의 인터넷 주소(URL)를 붙여넣으시면 됩니다.
         const byeMedia = activeChar.id === "luna"
-          ? { type: "gif", src: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGwzMWF0c3FzZ2JsemUwMTlteHFlczY4NG16NjlqbWw4cmhuNTk3NyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Bht33KS4YXaHS5ABOP/giphy.gif", alt: "luna_bye" }
-          : { type: "gif", src: "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cDYzOTdsdzdnMjIxbW5xdXlqZjlsMnJvZnpocHA1dWJyazlzcG1qNiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/IHeP5FkVoNoRcjGmyG/giphy.gif", alt: "jax_bye" };
+          ? { type: "gif", src: GIFS.luna.bye.src, alt: "luna_bye" }
+          : { type: "gif", src: GIFS.jax.bye.src, alt: "jax_bye" };
         
         return {
           text: charLine(
@@ -969,13 +962,6 @@
     }
   ];
 
-  function matchRule(t, intent){
-    for(const r of RULES){
-      if(r.when(t, intent)) return r;
-    }
-    return null;
-  }
-
   const FALLBACKS_NOCHAR = [
     `Pick a character first 🙂`,
     `Type "Luna" or "Jax" (or "pick").`,
@@ -997,55 +983,73 @@
     ]
   };
 
-  // ========= GIF bank + picker =========
+  // ✨ 수정: GIF 리스트의 역할을 일반, 부정적 상황, 작별 인사의 세 가지 그룹으로 분리
   const GIFS = {
     luna: {
-      smug: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWJlbmJ4bWp5bnViZWZnazVmdHlzeWlkdmNkMm00cm1wMTJmanMzbyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3htlqWXxb5x8MOVvFU/giphy.gif",
-      yay:  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YTN1MTN4YndvaGxpYzBxMTNkZzMzaXMxZjRpeG00MHBzb2dyd2pjZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/gbn9Z5tgJiKnRLOyxd/giphy.gif",
-      nope: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXZyanlyazIyMHJsNmFxNW92MmRmc2MzazlhZ3lzMHRkNXlna3l5eSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/nR4L10XlJcSeQ/giphy.gif"
+      general: [
+        { id:"smug", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWJlbmJ4bWp5bnViZWZnazVmdHlzeWlkdmNkMm00cm1wMTJmanMzbyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3htlqWXxb5x8MOVvFU/giphy.gif" },
+        { id:"yay",  src:"https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YTN1MTN4YndvaGxpYzBxMTNkZzMzaXMxZjRpeG00MHBzb2dyd2pjZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/gbn9Z5tgJiKnRLOyxd/giphy.gif" }
+      ],
+      negative: { id:"nope", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXZyanlyazIyMHJsNmFxNW92MmRmc2MzazlhZ3lzMHRkNXlna3l5eSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/nR4L10XlJcSeQ/giphy.gif" },
+      bye: { id:"luna_bye", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGwzMWF0c3FzZ2JsemUwMTlteHFlczY4NG16NjlqbWw4cmhuNTk3NyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Bht33KS4YXaHS5ABOP/giphy.gif" }
     },
     jax: {
-      hype: "https://media.giphy.com/media/w5eFyOHmkS8uc/giphy.gif",
-      lol:  "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXlpOHRoNGM4NjZjYmh3em93ejNraGdrcG5heTkzemhyZ2xlMXhsdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WO69ltlJZp0ZwI98kN/giphy.gif",
-      facepalm: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2xwamhvYXA3eW41N3VyOW5taTR0OWp4cTk1dHptcjRzZXFsbWNtMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9IgtrdGCFIFziuqY/giphy.gif"
+      general: [
+        { id:"hype", src:"https://media.giphy.com/media/w5eFyOHmkS8uc/giphy.gif" },
+        { id:"lol",  src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXlpOHRoNGM4NjZjYmh3em93ejNraGdrcG5heTkzemhyZ2xlMXhsdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WO69ltlJZp0ZwI98kN/giphy.gif" }
+      ],
+      negative: { id:"facepalm", src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2xwamhvYXA3eW41N3VyOW5taTR0OWp4cTk1dHptcjRzZXFsbWNtMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9IgtrdGCFIFziuqY/giphy.gif" },
+      bye: { id:"jax_bye", src:"https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cDYzOTdsdzdnMjIxbW5xdXlqZjlsMnJvZnpocHA1dWJyazlzcG1qNiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/IHeP5FkVoNoRcjGmyG/giphy.gif" }
     }
   };
 
   const USED_GIFS = new Set();
 
-  function pickAutoGif({ charId, intent, mode, text, safetyHit=false }) {
+  function pickAutoGif({ charId, intent, mode }) {
     if(!charId) return null;
     const bank = GIFS[charId];
     if(!bank) return null;
 
-    const p = 1.0; 
-    if(Math.random() > p) return null;
-
-    let keys = [];
-    if(safetyHit) keys = ["nope","facepalm","lol","smug","yay","hype"];
-    else if(intent === "thanks") keys = ["yay","lol","smug","hype","nope","facepalm"];
-    else if(intent === "greeting") keys = ["hype","yay","smug","lol","nope","facepalm"];
-    else if(mode === "flirty") keys = ["smug","yay","lol","hype","nope","facepalm"];
-    else if(mode === "quest") keys = ["yay","hype","lol","smug","nope","facepalm"];
-    else if(mode === "roast") keys = ["facepalm","nope","lol","smug","yay","hype"];
-    else keys = ["smug","lol","yay","hype","nope","facepalm"];
-
-    let candidates = keys.map(k => ({ key:k, src: bank[k] })).filter(x => !!x.src);
-    if(!candidates.length) return null;
-
-    let fresh = candidates.filter(x => !USED_GIFS.has(x.src));
-    if(!fresh.length) {
-      USED_GIFS.clear();
-      fresh = candidates;
+    // ✨ 1. 특정 상황(사과, 슬픔, 놀림 모드)일 때만 Nope, Facepalm 등의 부정적 리액션을 사용
+    const isNegative = (intent === "apology" || intent === "sad" || mode === "roast");
+    if (isNegative && bank.negative) {
+      // (부정적 GIF는 USED_GIFS 소진 제한에 포함하지 않습니다)
+      return { type: "gif", src: bank.negative.src, alt: bank.negative.id };
     }
+
+    // ✨ 2. 평상시에는 일반(general) GIF 중에서 사용하지 않은 것을 선택
+    let fresh = bank.general.filter(g => !USED_GIFS.has(g.src));
+    if (fresh.length === 0) return null; // 만일을 대비한 안전장치
 
     const pick = pickRandom(fresh);
     USED_GIFS.add(pick.src);
-    return { type:"gif", src: pick.src, alt: pick.key };
+    return { type:"gif", src: pick.src, alt: pick.id };
   }
 
   // ========= Main respond() =========
   async function respond(userText){
+    const t = normalize(userText);
+    const intent = mapToIntent(t) || null;
+
+    // ✨ 모든 로직 시작 전: 만약 일반 GIF 리스트가 바닥났다면?
+    let isExhausted = false;
+    if (activeChar) {
+      const bank = GIFS[activeChar.id];
+      const fresh = bank.general.filter(g => !USED_GIFS.has(g.src));
+      if (fresh.length === 0) isExhausted = true;
+    }
+
+    // ✨ 강제로 'bye'를 치거나, GIF가 완전히 소진되면 사용자가 무슨 입력을 했든 무조건 작별 인사 후 잠금
+    if (intent === "bye" || (activeChar && isExhausted)) {
+      const rule = RULES.find(r => r.id === "bye");
+      if(rule){
+        const out = rule.reply(t, "bye");
+        await botSayWithDelay(out.text || "", out.actions || [], out.media);
+      }
+      return; 
+    }
+
+    // 버튼 초이스 처리
     if(userText && userText.startsWith("@choice:")){
       const choice = userText.slice("@choice:".length).trim();
       
@@ -1062,42 +1066,43 @@
 
       if(out && (out.text || out.media)){
         const auto = (!out.media && activeChar)
-          ? pickAutoGif({ charId: activeChar.id, intent:"choice", mode: conversationMode, text: out.text })
+          ? pickAutoGif({ charId: activeChar.id, intent:"choice", mode: conversationMode })
           : null;
         await botSayWithDelay(out.text || "", out.actions || [], out.media || auto);
       }
       return;
     }
 
-    const t = normalize(userText);
-    const intent = mapToIntent(t) || null;
-
+    // 수동 선택 처리
     if(intent === "pick_luna" || intent === "pick_jax"){
       const r = RULES.find(r => r.id === intent);
       if(r) r.reply(t, intent);
       return;
     }
 
+    // 기본 규칙 매칭
     const rule = matchRule(t, intent);
     if(rule){
       const out = rule.reply(t, intent);
       if(out?.text || out?.media){
         const auto = (!out.media && activeChar)
-          ? pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: out.text })
+          ? pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode })
           : null;
         await botSayWithDelay(out.text || "", out.actions || [], out.media || auto);
       }
       return;
     }
 
+    // 오류 픽업
     if(!activeChar){
       const pick = pickRandom(FALLBACKS_NOCHAR);
       await botSayWithDelay(pick, GLOBAL_ACTIONS.pick);
       return;
     }
 
+    // 모드 반응
     if(conversationMode === "flirty"){
-      const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: t });
+      const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode });
       await botSayWithDelay(
         charLine(
           [`That’s interesting… but say it like you mean it 😌`, `You flatter me, but we both know you can do better ✨`], 
@@ -1108,7 +1113,7 @@
       return;
     }
     if(conversationMode === "quest"){
-      const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: t });
+      const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode });
       await botSayWithDelay(
         charLine(
           [`Noted. Your next move: explore, negotiate, or cause trouble?`, `A wise choice. But suddenly, a goblin appears! What do you do?`],
@@ -1119,7 +1124,7 @@
       return;
     }
     if(conversationMode === "roast"){
-      const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: t });
+      const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode });
       await botSayWithDelay(
         charLine(
           [`Gentle tease mode. Share one harmless detail and I’ll react playfully—kindly.`, `I see. That's quite a strategy... for a beginner. 👑`],
@@ -1130,9 +1135,10 @@
       return;
     }
 
+    // 맵핑 안된 내용 대체 (Fallback)
     const base = activeChar?.voice?.prefix || (activeChar.id === "luna" ? "Luna 👑" : "Jax 🎧");
     const pick = pickRandom(activeChar.id === "luna" ? FALLBACKS_WITHCHAR.luna : FALLBACKS_WITHCHAR.jax);
-    const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: pick });
+    const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode });
     await botSayWithDelay(`${base}: ${pick}`, [], auto);
   }
 
@@ -1169,7 +1175,7 @@
     conversationMode = "casual";
     USED_GIFS.clear();
 
-    unlockChat(); // ✨ 채팅창 잠금 해제
+    unlockChat(); 
 
     if(withWelcome){
       botSay(
