@@ -523,7 +523,7 @@
   let conversationMode = "casual";
   let awaitingPick = true;
   
-  // ✨ 추가: 무한 루프를 위한 전역 인덱스 변수
+  // ✨ 무한 루프를 위한 인덱스 변수
   let currentGifIndex = 0;
 
   // ========= Character helpers =========
@@ -542,7 +542,7 @@
     if(!ch) return;
     activeChar = ch;
     awaitingPick = false;
-    currentGifIndex = 0; // 캐릭터 변경 시 GIF 순서도 처음으로 리셋
+    currentGifIndex = 0; 
     addSystemRow(`You are now chatting with ${ch.name}.`);
     botSay(getIntroForCharacter(ch));
   }
@@ -671,7 +671,7 @@
 
   function botSay(text, actions, media){
     const autoGif = (!media && activeChar)
-      ? pickAutoGif({ charId: activeChar.id, intent: "auto", mode: conversationMode, text: text })
+      ? pickAutoGif({ charId: activeChar.id, intent: "auto", mode: conversationMode })
       : media || null;
 
     addRow({
@@ -761,7 +761,7 @@
       reply: () => {
         setTimeout(() => lockChat("The chat is locked. Press Reset to start a new conversation."), 1200);
         
-        const byeMedia = activeChar.id === "luna"
+        const byeMedia = (activeChar && activeChar.id === "luna")
           ? { type: "gif", src: GIFS.luna.bye.src, alt: "luna_bye" }
           : { type: "gif", src: GIFS.jax.bye.src, alt: "jax_bye" };
         
@@ -1004,22 +1004,21 @@
     }
   };
 
-  // ✨ 수정: GIF가 바닥나지 않도록 순서대로 계속 반복하는(Loop) 로직으로 교체
   function pickAutoGif({ charId, intent, mode }) {
     if(!charId) return null;
     const bank = GIFS[charId];
     if(!bank) return null;
 
-    // 1. 특정 상황(사과, 슬픔, 놀림 모드)일 때만 Nope, Facepalm 등의 부정적 리액션을 사용
+    // 특정 상황(사과, 슬픔, 놀림 모드)일 때만 Nope, Facepalm 등의 부정적 리액션을 사용
     const isNegative = (intent === "apology" || intent === "sad" || mode === "roast");
     if (isNegative && bank.negative) {
       return { type: "gif", src: bank.negative.src, alt: bank.negative.id };
     }
 
-    // 2. 평상시에는 일반(general) GIF를 고정된 순서로 무한 반복해서 보여줌
+    // 평상시에는 일반(general) GIF를 고정된 순서로 무한 반복해서 보여줌
     if (bank.general.length === 0) return null;
     const pick = bank.general[currentGifIndex % bank.general.length];
-    currentGifIndex++; // 다음 순서로 이동
+    currentGifIndex++; 
     
     return { type:"gif", src: pick.src, alt: pick.id };
   }
@@ -1066,7 +1065,7 @@
       const out = rule.reply(t, intent);
       if(out?.text || out?.media){
         const auto = (!out.media && activeChar)
-          ? pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode })
+          ? pickAutoGif({ charId: activeChar?.id, intent, mode: conversationMode })
           : null;
         await botSayWithDelay(out.text || "", out.actions || [], out.media || auto);
       }
@@ -1116,9 +1115,9 @@
     }
 
     // 맵핑 안된 내용 대체 (Fallback)
-    const base = activeChar?.voice?.prefix || (activeChar.id === "luna" ? "Luna 👑" : "Jax 🎧");
-    const pick = pickRandom(activeChar.id === "luna" ? FALLBACKS_WITHCHAR.luna : FALLBACKS_WITHCHAR.jax);
-    const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode });
+    const base = activeChar?.voice?.prefix || (activeChar && activeChar.id === "luna" ? "Luna 👑" : "Jax 🎧");
+    const pick = pickRandom(activeChar && activeChar.id === "luna" ? FALLBACKS_WITHCHAR.luna : FALLBACKS_WITHCHAR.jax);
+    const auto = pickAutoGif({ charId: activeChar?.id, intent, mode: conversationMode });
     await botSayWithDelay(`${base}: ${pick}`, [], auto);
   }
 
@@ -1153,7 +1152,7 @@
     activeChar = null;
     awaitingPick = true;
     conversationMode = "casual";
-    currentGifIndex = 0; // ✨ 리셋 시 GIF 순서도 0으로 초기화
+    currentGifIndex = 0; 
 
     unlockChat(); 
 
