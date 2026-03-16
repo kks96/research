@@ -117,22 +117,15 @@ body{
 }
 
 .bubble{
-  /* ✅ 내용 길이에 맞춰서 줄어들게 */
   display: inline-block !important;
   width: auto !important;
-
-
-  /* ✅ 너무 넓어지지만 않게 */
   max-width: 100% !important;
-
-  /* ✅ 데스크톱에선 고정 최소폭 없애기 */
   min-width: 0 !important;
 
   padding:10px 12px !important;
   border-radius:14px !important;
   line-height:1.45 !important;
 
-  /* ✅ 줄바꿈 규칙 */
   white-space: pre-wrap !important;
   word-break: normal !important;
   overflow-wrap: break-word !important;
@@ -175,9 +168,6 @@ body{
 }
 
 .meta{font-size:11px;color:var(--muted);margin-top:4px}
-
-
-/* meta가 block이라 폭을 키우는 걸 방지 */
 .meta{
   display: inline-block;
   width: fit-content;
@@ -237,8 +227,8 @@ textarea.input::placeholder{
   gap: 6px;
   padding: 4px 6px;
 
-  flex-wrap: nowrap;        /* ✅ 핵심: 가로 고정 */
-  white-space: nowrap;     /* ✅ 텍스트 줄바꿈 금지 */
+  flex-wrap: nowrap;
+  white-space: nowrap;
 
   background: none;
   border: none;
@@ -258,18 +248,16 @@ textarea.input::placeholder{
 .dot:nth-child(3){animation-delay:.3s}
 @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.55}40%{transform:translateY(-6px);opacity:1}}
 
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-
-/* =========================
-   Action button overflow fix
-   ========================= */
 .actions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
   flex-wrap: wrap;
 }
 
 .actionBtn{
   max-width: 100%;
-  min-width: 0;          /* ✅ 120px -> 0으로 */
+  min-width: 0;
   flex: 1 1 auto;
   white-space: normal;
   overflow-wrap: anywhere;
@@ -299,11 +287,12 @@ textarea.input::placeholder{
   box-shadow: 0 14px 28px rgba(139,92,246,.20);
 }
 .actionBtn:hover{filter:brightness(1.05)}
+.actionBtn:disabled{opacity: 0.5; cursor: not-allowed; filter: none;}
 
 .endedOverlay{
   position:absolute;
   inset:0;
-  display:none; /* 기본은 숨김 */
+  display:none; 
   align-items:center;
   justify-content:center;
   background: rgba(0,0,0,.55);
@@ -338,21 +327,18 @@ textarea.input::placeholder{
   }
 }
 
-  /* iOS Safari/webview 대비: wrap 자체도 축소 + 폭 보정 */
-  .wrap{
+.wrap{
   max-width: 900px;
   width: 100%;
   margin: 0 auto;
   padding: 16px;
 }
 
+.log{
+  height: 460px;
+}
 
-  /* (선택) 스크롤 체감 더 줄이고 싶으면 log 높이도 약간 줄이기 */
-  .log{
-    height: 460px; /* 420~520 사이로 취향 조절 */
-  }
-
-  /* (선택) 버튼/입력도 조금 컴팩트하게 */
+@media (max-width: 480px){
   .composer{ padding: 10px 12px; }
   textarea.input{ font-size: 13px; min-height: 44px; }
   .btn{ padding: 10px 12px; }
@@ -369,7 +355,6 @@ textarea.input::placeholder{
         <div class="title" id="botName">PPT Builder AI “GPPT”</div>
         <div class="subtitle" id="botDesc"></div>
       </div>
-      <!-- Exit 없음 -->
     </div>
 
     <div class="log" id="log"></div>
@@ -427,20 +412,19 @@ textarea.input::placeholder{
 
   elBotAvatar.innerHTML = BOT.avatarSvg;
   elBotName.textContent = BOT.name;
-  if (elBotDesc) elBotDesc.textContent = ""; // 필요하면 넣기
+  if (elBotDesc) elBotDesc.textContent = ""; 
 
-  // ✅ 3종 파일 등록
   const PPT_FILES = {
     executive: { url: "https://kks96.github.io/research/utilitarian/executive.pptx", filename:"executive.pptx", label:"AI Executive Briefing" },
     roadmap:   { url: "https://kks96.github.io/research/utilitarian/roadmap.pptx",   filename:"roadmap.pptx",   label:"AI Roadmap" },
     pitch:     { url: "https://kks96.github.io/research/utilitarian/pitch.pptx",     filename:"pitch.pptx",     label:"Pitch Deck" }
   };
 
-  // ✅ 어떤 파일을 제공했는지 기록
-  const provided = new Set(); // "executive" | "roadmap" | "pitch"
+  const provided = new Set(); 
 
   let typingRowEl = null;
   let awaitingContinueAfterThanks = false;
+  let chatEnded = false;
 
   function nowTime(){
     const d = new Date();
@@ -459,6 +443,18 @@ textarea.input::placeholder{
     document.body.appendChild(a);
     a.click();
     a.remove();
+  }
+
+  // ✅ 채팅 잠금 함수 추가
+  function lockChat() {
+    chatEnded = true;
+    msg.disabled = true;
+    send.disabled = true;
+    msg.placeholder = "This chat has ended. You can still download your file above.";
+    
+    // 이전에 있던 일반(choice) 버튼들은 모두 클릭 불가능하게 비활성화, download 버튼은 남겨둠
+    const choiceButtons = log.querySelectorAll('.actionBtn:not(.primary)');
+    choiceButtons.forEach(btn => btn.disabled = true);
   }
 
   function addRow({who, text, actions=[]}){
@@ -490,7 +486,8 @@ textarea.input::placeholder{
           if(a.type === "download") {
             downloadFile(a.url, a.filename);
           }
-          if(a.type === "choice") {
+          // 채팅이 끝난 뒤엔 일반 버튼 동작 차단
+          if(a.type === "choice" && !chatEnded) {
             addRow({who:"me", text: a.label});
             respond("@choice:" + (a.value || a.label));
           }
@@ -554,8 +551,6 @@ textarea.input::placeholder{
     }
     label.textContent = text;
   }
-
-  let chatEnded = false;
 
   function hideTyping(){
     if(!typingRowEl) return;
@@ -644,11 +639,7 @@ textarea.input::placeholder{
       id: "ask_name",
       patterns: [/what('?s| is) your name\??/i, /who are you\??/i, /your name\??/i],
       reply: () => ({
-        text: `My name is GPPT.
-I’m a scenario-based PPT helper — I can:
-• Provide a starter PPT template (download)
-• Suggest slide structure for executive briefing / roadmap / pitch
-• Turn your topic into clear slide titles + key bullets`,
+        text: `My name is GPPT.\nI’m a scenario-based PPT helper — I can:\n• Provide a starter PPT template (download)\n• Suggest slide structure for executive briefing / roadmap / pitch\n• Turn your topic into clear slide titles + key bullets`,
         actions: [
           { label: "Executive briefing", type: "choice", value: "executive" },
           { label: "AI roadmap", type: "choice", value: "roadmap" },
@@ -666,12 +657,7 @@ I’m a scenario-based PPT helper — I can:
         /^help me$/i,/^hep me$/i,/^hel me$/i,/^hlp me$/i,/commands/i
       ],
       reply: () => ({
-        text: `Here’s what I can do:
-1) Give you a starter PPT template (download)
-2) Recommend a deck format (executive / roadmap / pitch)
-3) Provide a slide-by-slide outline for your topic
-
-Pick one to continue:`,
+        text: `Here’s what I can do:\n1) Give you a starter PPT template (download)\n2) Recommend a deck format (executive / roadmap / pitch)\n3) Provide a slide-by-slide outline for your topic\n\nPick one to continue:`,
         actions: [
           { label: "Executive briefing", type: "choice", value: "executive" },
           { label: "AI roadmap", type: "choice", value: "roadmap" },
@@ -684,13 +670,7 @@ Pick one to continue:`,
       id: "greeting",
       patterns: [/^hi$/i,/^hello$/i,/^hey$/i,/^yo$/i,/^sup$/i,/^good (morning|afternoon|evening)$/i],
       reply: () => ({
-        text: `I'm really glad to meet you!
-
-What do you need? For now, I can help you with:
-• A starter template
-• An executive briefing outline
-• A roadmap deck structure
-• A pitch deck structure`,
+        text: `I'm really glad to meet you!\n\nWhat do you need? For now, I can help you with:\n• A starter template\n• An executive briefing outline\n• A roadmap deck structure\n• A pitch deck structure`,
         actions: [
           { label: "Executive briefing", type: "choice", value: "executive" },
           { label: "AI roadmap", type: "choice", value: "roadmap" },
@@ -705,8 +685,7 @@ What do you need? For now, I can help you with:
       reply: () => {
         awaitingContinueAfterThanks = true;
         return ({
-          text: `You’re welcome.
-Do you want me to help you with a further deck format or starter template?`,
+          text: `You’re welcome.\nDo you want me to help you with a further deck format or starter template?`,
           actions: [
             { label: "Executive briefing", type: "choice", value: "executive" },
             { label: "AI roadmap", type: "choice", value: "roadmap" },
@@ -743,17 +722,8 @@ Do you want me to help you with a further deck format or starter template?`,
   ];
 
   const FALLBACKS = [
-    `Sorry. I didn’t fully understand. Could you tell me a little more detail?
-
-For example, you can say:
-• "Download a PowerPoint template"
-• "Help me create a PPT about AI business"
-• Or type "help" to see options.`,
-    `Sorry — can you clarify what kind of PPT you want?
-
-Try:
-• Say "download template"
-• Or type "help" to see options.`
+    `Sorry. I didn’t fully understand. Could you tell me a little more detail?\n\nFor example, you can say:\n• "Download a PowerPoint template"\n• "Help me create a PPT about AI business"\n• Or type "help" to see options.`,
+    `Sorry — can you clarify what kind of PPT you want?\n\nTry:\n• Say "download template"\n• Or type "help" to see options.`
   ];
 
   function matchRule(userText){
@@ -775,11 +745,16 @@ Try:
       const choiceValue = userText.slice("@choice:".length);
 
       showGenerating("Making PPT for you...");
-      await sleep(5000);
+      await sleep(3000); // 3초 대기 (5초에서 조금 단축)
       hideTyping();
 
       const out = handleChoice(choiceValue);
       addRow({who:"bot", text: out.text, actions: out.actions});
+
+      // ✅ 파일 제공 시 채팅 잠금 처리 (단, 다운로드 버튼 자체는 유지)
+      if(out.actions && out.actions.some(a => a.type === "download")) {
+        lockChat();
+      }
       return;
     }
 
@@ -795,13 +770,10 @@ Try:
         awaitingContinueAfterThanks = false;
         addRow({
           who: "bot",
-          text: `Got it. Thanks for using GPPT.
-Whenever you need help, just come back and ask — I’ll be here!`
+          text: `Got it. Thanks for using GPPT.\nWhenever you need help, just come back and ask — I’ll be here!`
         });
 
-        msg.disabled = true;
-        send.disabled = true;
-        msg.placeholder = "This chat has ended.";
+        lockChat(); // 사용자가 더 이상 템플릿 안 받겠다고 거절했을 때도 잠금
         return;
       }
       awaitingContinueAfterThanks = false;
@@ -810,23 +782,23 @@ Whenever you need help, just come back and ask — I’ll be here!`
     const mapped = mapTypedChoiceToValue(t);
     if(mapped){
       showGenerating("Making PPT for you...");
-      await sleep(5000);
+      await sleep(3000);
       hideTyping();
 
       const out = handleChoice(mapped);
       addRow({who:"bot", text: out.text, actions: out.actions});
+
+      // ✅ 파일 제공 시 채팅 잠금 처리
+      if(out.actions && out.actions.some(a => a.type === "download")) {
+        lockChat();
+      }
       return;
     }
 
     if (containsBadLanguage(t) || containsDisallowedRequest(t)) {
       addRow({
         who: "bot",
-        text: `I can’t help with that request.
-
-If you want, I can help you with:
-• Creating a PPT outline (executive / roadmap / pitch)
-• Providing a starter template for download
-• Turning your topic into slide titles + key bullets`,
+        text: `I can’t help with that request.\n\nIf you want, I can help you with:\n• Creating a PPT outline (executive / roadmap / pitch)\n• Providing a starter template for download\n• Turning your topic into slide titles + key bullets`,
         actions: [
           { label: "Executive briefing", type: "choice", value: "executive" },
           { label: "AI roadmap", type: "choice", value: "roadmap" },
@@ -853,11 +825,12 @@ If you want, I can help you with:
   }
 
   async function onSend(){
-  // ✅ 줄바꿈은 유지 (Shift+Enter 입력도 그대로)
+  if (chatEnded) return;
+
   const text = (msg.value || "")
     .replace(/\t+/g, " ")
-    .replace(/\r/g, "")          // 윈도우 CR만 제거
-    .trimEnd();                  // 끝 공백만 정리 (앞쪽은 유지)
+    .replace(/\r/g, "")         
+    .trimEnd();                 
 
   if(!text.trim()) return;
 
@@ -867,7 +840,9 @@ If you want, I can help you with:
 
   send.disabled = true;
   try{ await respond(text); }
-  finally{ send.disabled = false; }
+  finally{ 
+    if(!chatEnded) send.disabled = false; 
+  }
 }
 
   msg.addEventListener("keydown", (e) => {
@@ -881,6 +856,7 @@ If you want, I can help you with:
 
   send.addEventListener("click", onSend);
 
+  // ✅ 리셋 시 잠금 초기화
   reset.addEventListener("click", () => {
     log.innerHTML = "";
 
@@ -896,10 +872,7 @@ If you want, I can help you with:
 
   addRow({
     who:"bot",
-    text: `Hi! I'm GPPT — your AI PPT helper.
-Tell me what kind of deck you want, or type "help" to see buttons.
-
-Example: "Help me create a PowerPoint about AI business"`
+    text: `Hi! I'm GPPT — your AI PPT helper.\nTell me what kind of deck you want, or type "help" to see buttons.\n\nExample: "Help me create a PowerPoint about AI business"`
   });
 
 })();
