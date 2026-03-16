@@ -1021,7 +1021,7 @@
     let fresh = bank.general.filter(g => !USED_GIFS.has(g.src));
     if (fresh.length === 0) return null; // 만일을 대비한 안전장치
 
-    const pick = pickRandom(fresh);
+    const pick = fresh[0]; // <--- 무조건 순서대로(첫 번째) 가져오도록 수정!
     USED_GIFS.add(pick.src);
     return { type:"gif", src: pick.src, alt: pick.id };
   }
