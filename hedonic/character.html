@@ -59,22 +59,22 @@
       0%{transform:translate3d(0,0,0) scale(1)}
       100%{transform:translate3d(-12px, 10px,0) scale(1.03)}
     }
-html, body { height: 100%; }
-body { margin:0; }
+    html, body { height: 100%; }
+    body { margin:0; }
     
     .wrap{
-  max-width: 980px;
-  width: 100%;
-  height: 100%;          /* ✅ 추가 */
-  margin: 0 auto;
-  padding: 16px;
-}
+      max-width: 980px;
+      width: 100%;
+      height: 100%;
+      margin: 0 auto;
+      padding: 16px;
+    }
 
     /* Main card */
     .card{
       width: 100%;
       max-width: 980px;
-      height: 100%;          /* ✅ 추가 */
+      height: 100%;
       min-height: 520px; 
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
       border:1px solid rgba(255,255,255,.12);
@@ -105,16 +105,15 @@ body { margin:0; }
     @keyframes spin{to{transform:rotate(360deg)}}
 
     .cardInner{
-  position: relative;    /* ✅ absolute 제거 */
-  inset: auto;           /* ✅ 의미 없지만 혹시 남아있으면 무력화 */
-  width: 100%;
-  height: 100%;          /* ✅ 추가 */
-  background: linear-gradient(180deg, rgba(12,12,22,.78), rgba(8,8,14,.86));
-  z-index:1;
-  display:flex;
-  flex-direction:column;
-  min-height:0;
-}
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(12,12,22,.78), rgba(8,8,14,.86));
+      z-index:1;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
 
     /* top bar */
     .topbar{
@@ -203,6 +202,7 @@ body { margin:0; }
         radial-gradient(900px 600px at 30% 0%, rgba(236,72,153,.10), transparent 60%),
         radial-gradient(900px 600px at 80% 20%, rgba(56,189,248,.08), transparent 55%),
         linear-gradient(180deg, rgba(6,7,14,.55), rgba(6,7,14,.80));
+      scroll-behavior: smooth;
     }
 
     .row{display:flex; gap:10px; margin:10px 0; align-items:flex-end}
@@ -278,32 +278,31 @@ body { margin:0; }
       flex: 1 1 auto;
       white-space: normal;
       overflow-wrap: anywhere;
+      transition: all 0.2s;
     }
     @media (max-width: 480px){
-  .wrap{
-    transform: scale(0.92);
-    transform-origin: top center;
-  }
-
-  .log{
-    max-height: 460px;
-  }
-
-  textarea.input{
-    font-size: 13px;
-    min-height: 44px;
-  }
-
-  .btn{
-    padding: 10px 12px;
-  }
-}
+      .wrap{
+        transform: scale(0.92);
+        transform-origin: top center;
+      }
+      .log{
+        max-height: 460px;
+      }
+      textarea.input{
+        font-size: 13px;
+        min-height: 44px;
+      }
+      .btn{
+        padding: 10px 12px;
+      }
+    }
     .actionBtn.primary{
       border:none;
       background: linear-gradient(135deg, rgba(236,72,153,.95), rgba(56,189,248,.92));
       box-shadow: 0 16px 34px rgba(236,72,153,.16);
     }
-    .actionBtn:hover{filter:brightness(1.06)}
+    .actionBtn:hover:not(:disabled){filter:brightness(1.1); transform:translateY(-1px);}
+    .actionBtn:disabled{opacity:0.5; cursor:not-allowed;}
 
     /* composer */
     .composer{
@@ -330,8 +329,10 @@ body { margin:0; }
       color:var(--text);
       background: rgba(255,255,255,.06);
       box-shadow: inset 0 0 0 1px rgba(139,92,246,.08);
+      transition: all 0.3s;
     }
     textarea.input::placeholder{color: rgba(240,245,255,.42)}
+    textarea.input:disabled { opacity: 0.5; background: rgba(0,0,0,0.2); cursor: not-allowed; }
 
     .btn{
       padding:12px 14px;
@@ -344,19 +345,10 @@ body { margin:0; }
       box-shadow:
         0 0 0 1px rgba(255,255,255,.10),
         0 16px 40px rgba(139,92,246,.20);
+      transition: all 0.3s;
     }
-    .btn:hover{filter:brightness(1.07)}
-    .btn:disabled{opacity:.55;cursor:not-allowed}
-
-    .hintRow{
-      display:flex;
-      gap:10px;
-      justify-content:space-between;
-      padding:0 14px 12px;
-      color:var(--muted);
-      font-size:12px;
-      flex:0 0 auto;
-    }
+    .btn:hover:not(:disabled){filter:brightness(1.1); transform:scale(1.02);}
+    .btn:disabled{opacity:.4; cursor:not-allowed; filter:grayscale(0.5);}
 
     /* typing */
     .typing{
@@ -464,6 +456,30 @@ body { margin:0; }
     showToast._t = setTimeout(()=>toast.style.display="none", 1800);
   }
 
+  function pickRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  // ✨ 채팅창 잠금 함수
+  function lockChat(reason = "Chat locked.") {
+    msg.disabled = true;
+    send.disabled = true;
+    msg.placeholder = reason;
+    
+    // 화면에 남은 선택지 버튼들도 모두 비활성화
+    const actionBtns = log.querySelectorAll('.actionBtn');
+    actionBtns.forEach(btn => {
+      btn.disabled = true;
+    });
+  }
+
+  // ✨ 채팅창 잠금 해제 함수
+  function unlockChat() {
+    msg.disabled = false;
+    send.disabled = false;
+    msg.placeholder = 'Enter = send, Shift+Enter = new line. Example: "pick", "Luna", or "Jax".';
+  }
+
   // ========= Characters =========
   function svgAvatarDataURI({bgA,bgB,emoji,accent}){
     const svg = `
@@ -491,30 +507,24 @@ body { margin:0; }
       id: "luna",
       name: "Luna",
       tagline: "Princess of Everglass Castle",
-      description: "Regal, warm, and playful in a gentle way. Speaks like a fairytale court—kind, curious, and composed.",
+      description: "Regal, warm, and playful in a gentle way.",
       avatar: svgAvatarDataURI({ bgA:"#ec4899", bgB:"#8b5cf6", emoji:"👑", accent:"#fbcfe8" }),
-      voice: {
-        prefix: "Luna 👑",
-        styleHints: ["regal", "poetic", "warm", "gentle humor", "fairytale court"],
-        tics: ["My dear", "Indeed", "How intriguing", "By royal decree (playful)"],
-      }
+      voice: { prefix: "Luna 👑" }
     },
     {
       id: "jax",
       name: "Jax",
       tagline: "Neon Club DJ & Hype Captain",
-      description: "Fast, upbeat, and rhythm-obsessed. Turns your messages into ‘tracks’—energetic, playful, and supportive.",
+      description: "Fast, upbeat, and rhythm-obsessed.",
       avatar: svgAvatarDataURI({ bgA:"#38bdf8", bgB:"#22c55e", emoji:"🎧", accent:"#cffafe" }),
-      voice: {
-        prefix: "Jax 🎧",
-        styleHints: ["energetic", "club DJ", "hype", "short punchy", "rhythm metaphors"],
-        tics: ["Let’s go", "Big mood", "Drop the beat", "Mic check"],
-      }
+      voice: { prefix: "Jax 🎧" }
     }
   ];
 
   let activeChar = null;
   let typingRowEl = null;
+  let conversationMode = "casual";
+  let awaitingPick = true;
 
   // ========= Character helpers =========
   function getIntroForCharacter(ch){
@@ -533,7 +543,7 @@ body { margin:0; }
     activeChar = ch;
     awaitingPick = false;
     addSystemRow(`You are now chatting with ${ch.name}.`);
-    botSay(getIntroForCharacter(ch)); // immediate intro
+    botSay(getIntroForCharacter(ch));
   }
 
   // ========= Chat rendering =========
@@ -562,7 +572,8 @@ body { margin:0; }
       bubble.appendChild(t);
     }
 
-    if(media && media.type === "gif" && media.src){
+    // ✨ URL이 실제로 존재할 때만 이미지를 렌더링하도록 조건 추가 (빈 문자열이면 무시)
+    if(media && media.type === "gif" && media.src && !media.src.includes("YOUR_")){
       const img = document.createElement("img");
       img.src = media.src;
       img.alt = media.alt || "gif";
@@ -584,6 +595,7 @@ body { margin:0; }
         b.className = "actionBtn " + (a.primary ? "primary" : "");
         b.textContent = a.label;
         b.onclick = () => {
+          if (b.disabled) return;
           addRow({who:"me", text: a.label});
           respond("@choice:" + (a.value || a.label));
         };
@@ -601,7 +613,10 @@ body { margin:0; }
 
     row.appendChild(wrap);
     log.appendChild(row);
-    log.scrollTop = log.scrollHeight;
+    
+    setTimeout(() => {
+      log.scrollTo({ top: log.scrollHeight, behavior: 'smooth' });
+    }, 10);
   }
 
   function addSystemRow(text){
@@ -622,7 +637,7 @@ body { margin:0; }
     wrap.appendChild(meta);
     row.appendChild(wrap);
     log.appendChild(row);
-    log.scrollTop = log.scrollHeight;
+    log.scrollTo({ top: log.scrollHeight, behavior: 'smooth' });
   }
 
   function showTyping(){
@@ -645,7 +660,7 @@ body { margin:0; }
     row.appendChild(typing);
     typingRowEl = row;
     log.appendChild(row);
-    log.scrollTop = log.scrollHeight;
+    log.scrollTo({ top: log.scrollHeight, behavior: 'smooth' });
   }
 
   function hideTyping(){
@@ -655,24 +670,18 @@ body { margin:0; }
   }
 
   function botSay(text, actions, media){
-  const autoGif =
-    (!media && activeChar)
-      ? pickAutoGif({
-          charId: activeChar.id,
-          intent: "auto",
-          mode: conversationMode,
-          text: text
-        })
+    const autoGif = (!media && activeChar)
+      ? pickAutoGif({ charId: activeChar.id, intent: "auto", mode: conversationMode, text: text })
       : media || null;
 
-  addRow({
-    who:"bot",
-    text,
-    avatarUrl: activeChar ? activeChar.avatar : null,
-    actions: actions || [],
-    media: autoGif
-  });
-}
+    addRow({
+      who:"bot",
+      text,
+      avatarUrl: activeChar ? activeChar.avatar : null,
+      actions: actions || [],
+      media: autoGif
+    });
+  }
 
   async function botSayWithDelay(text, actions=[], media=null, opts={}){
     const { immediate=false, delayMs=950 } = opts;
@@ -686,10 +695,10 @@ body { margin:0; }
     botSay(text, actions, media);
   }
 
-  // ========= Tone helper =========
-  function charLine(lunaText, jaxText){
-    if(!activeChar) return lunaText;
-    return activeChar.id === "luna" ? lunaText : jaxText;
+  function charLine(lunaTexts, jaxTexts){
+    if(!activeChar) return Array.isArray(lunaTexts) ? lunaTexts[0] : lunaTexts;
+    const choices = activeChar.id === "luna" ? lunaTexts : jaxTexts;
+    return Array.isArray(choices) ? pickRandom(choices) : choices;
   }
 
   // ========= Actions / modes =========
@@ -705,12 +714,12 @@ body { margin:0; }
     ]
   };
 
-  let conversationMode = "casual";
-  let awaitingPick = true;
-
   // ========= Intents =========
   function mapToIntent(t){
     const MAP = [
+      // ✨ 추가: 작별 인사 의도 파악
+      { intent:"bye", rx:[ /\b(bye|goodbye|quit|leave|exit|cya|see ya)\b/i ]}, 
+
       { intent:"pick", rx:[ /^pick\b/i, /\bchoose\b/i, /\bselect\b/i, /\bcharacter\b/i, /\bswitch\b/i ]},
       { intent:"pick_luna", rx:[ /^pick\s+luna\b/i, /^choose\s+luna\b/i, /^select\s+luna\b/i, /^\s*luna\s*$/i, /\bluna\b/i ]},
       { intent:"pick_jax",  rx:[ /^pick\s+jax\b/i, /^choose\s+jax\b/i, /^select\s+jax\b/i, /^\s*jax\s*$/i, /\bjax\b/i ]},
@@ -747,14 +756,35 @@ body { margin:0; }
 
   // ========= Rules =========
   const RULES = [
-    // start: require character pick
+    // ✨ 추가: 마지막 대화 (bye) 룰 및 채팅 잠금 기능
+    {
+      id:"bye",
+      when: (t, intent) => intent === "bye",
+      reply: () => {
+        // 타이머를 두어 대사가 렌더링된 후 잠금 처리
+        setTimeout(() => lockChat("The chat is locked. Press Reset to start a new conversation."), 1200);
+        
+        // 🎯 [여기에 GIF 링크를 나중에 입력하세요]
+        // 큰따옴표("") 안에 사용할 GIF 이미지의 인터넷 주소(URL)를 붙여넣으시면 됩니다.
+        const byeMedia = activeChar.id === "luna"
+          ? { type: "gif", src: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGwzMWF0c3FzZ2JsemUwMTlteHFlczY4NG16NjlqbWw4cmhuNTk3NyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Bht33KS4YXaHS5ABOP/giphy.gif", alt: "luna_bye" }
+          : { type: "gif", src: "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cDYzOTdsdzdnMjIxbW5xdXlqZjlsMnJvZnpocHA1dWJyazlzcG1qNiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/IHeP5FkVoNoRcjGmyG/giphy.gif", alt: "jax_bye" };
+        
+        return {
+          text: charLine(
+            `It seems my time here is up. I must return to my royal duties now. Farewell, my dear. ✨`,
+            `Track's done and I gotta bounce! Catch you on the flip side. 🎧`
+          ),
+          media: byeMedia
+        };
+      }
+    },
+
     {
       id:"start_gate",
       when: (t, intent) => awaitingPick && !activeChar,
       reply: () => ({
-        text:
-`Welcome ✨ This is an English-only, AI-based character chatbot.
-Pick a character to begin by typing "Luna" or "Jax" (or type "pick").`,
+        text: `Welcome ✨ This is an English-only, AI-based character chatbot.\nPick a character to begin by typing "Luna" or "Jax" (or type "pick").`,
         actions: GLOBAL_ACTIONS.pick
       })
     },
@@ -769,38 +799,23 @@ Pick a character to begin by typing "Luna" or "Jax" (or type "pick").`,
     {
       id:"pick_luna",
       when: (t, intent) => intent === "pick_luna" || t === "@choice:pick:luna",
-      reply: () => {
-        setActiveCharacter("luna");
-        return { text: null };
-      }
+      reply: () => { setActiveCharacter("luna"); return { text: null }; }
     },
     {
       id:"pick_jax",
       when: (t, intent) => intent === "pick_jax" || t === "@choice:pick:jax",
-      reply: () => {
-        setActiveCharacter("jax");
-        return { text: null };
-      }
+      reply: () => { setActiveCharacter("jax"); return { text: null }; }
     },
 
-    // help
     {
       id:"help",
       when: (t, intent) => intent === "help",
       reply: () => ({
-        text:
-`Here are some things you can try:
-• "rules" (see supported intents)
-• "flirty" / "quest" / "roast" (change vibe)
-• Small talk: "how are you", "tell me a joke", "I'm bored"
-
-Tip: You can add tons of aliases to intents for flexibility.`,
+        text: `Here are some things you can try:\n• "rules" (see supported intents)\n• "flirty" / "quest" / "roast" (change vibe)\n• "bye" (end chat)\n• Small talk: "how are you", "joke", "bored"`,
         actions: [
           { label:"Pick a character", value:"pick", primary:true },
           { label:"Show rules", value:"rules" },
-          { label:"Flirty banter", value:"mode:flirty" },
-          { label:"Silly quest", value:"mode:quest" },
-          { label:"Gentle tease", value:"mode:roast" }
+          { label:"End Chat", value:"bye" }
         ]
       })
     },
@@ -808,37 +823,26 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       id:"rules",
       when: (t, intent) => intent === "rules",
       reply: () => ({
-        text:
-`Supported intents:
-• picking: "pick", "luna", "jax"
-• utility: "help", "reset", "rules"
-• modes: "flirty", "quest", "roast"
-• small talk: "how are you", "who are you", "tell me a joke", "tell me a story", "I'm bored", "I'm stressed", "I'm tired"`,
+        text: `Supported intents:\n• picking: "pick", "luna", "jax"\n• modes: "flirty", "quest", "roast"\n• exit: "bye", "quit"\n• small talk: "how are you", "joke", "story", "bored", "stressed", "tired"`,
         actions: GLOBAL_ACTIONS.modes
       })
     },
     {
       id:"reset",
       when: (t, intent) => intent === "reset",
-      reply: () => {
-        hardReset(true);
-        return { text: null };
-      }
+      reply: () => { hardReset(true); return { text: null }; }
     },
 
-    // modes
     {
       id:"mode_flirty",
       when: (t, intent) => intent === "mode_flirty" || t === "@choice:mode:flirty" || t === "flirty",
       reply: () => {
         conversationMode = "flirty";
-        if(!activeChar){
-          return { text:`Pick a character first 🙂`, actions: GLOBAL_ACTIONS.pick };
-        }
+        if(!activeChar) return { text:`Pick a character first 🙂`, actions: GLOBAL_ACTIONS.pick };
         return {
           text: charLine(
-            `Flirty mode? Say less. Compliment me in 5 words 😌`,
-            `Flirty mode? Bold. Hit me with your best pickup line. I will judge it.`
+            [`Flirty mode? Say less. Compliment me in 5 words 😌`, `Oh? Feeling bold? Let's see your best royal pickup line.`],
+            [`Flirty mode? Bold. Hit me with your best pickup line. I will judge it.`, `Ooh, turning up the heat. What've you got? 😏`]
           )
         };
       }
@@ -848,13 +852,11 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       when: (t, intent) => intent === "mode_quest" || t === "@choice:mode:quest" || t === "quest",
       reply: () => {
         conversationMode = "quest";
-        if(!activeChar){
-          return { text:`Pick a character first 🙂`, actions: GLOBAL_ACTIONS.pick };
-        }
+        if(!activeChar) return { text:`Pick a character first 🙂`, actions: GLOBAL_ACTIONS.pick };
         return {
           text: charLine(
-            `Quest time! Choose: (1) haunted arcade, (2) moon bazaar, (3) secret karaoke dungeon.`,
-            `Quest mode. Choose your weapon: sarcasm, charm, or chaos.`
+            [`Quest time! Choose: (1) haunted arcade, (2) moon bazaar, (3) secret karaoke dungeon.`, `An adventure? Grab your sword! Where to first?`],
+            [`Quest mode. Choose your weapon: sarcasm, charm, or chaos.`, `Let's go. Are we fighting dragons or dodging lasers today?`]
           )
         };
       }
@@ -864,30 +866,25 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       when: (t, intent) => intent === "mode_roast" || t === "@choice:mode:roast" || t === "roast",
       reply: () => {
         conversationMode = "roast";
-        if(!activeChar){
-          return { text:`Pick a character first 🙂`, actions: GLOBAL_ACTIONS.pick };
-        }
+        if(!activeChar) return { text:`Pick a character first 🙂`, actions: GLOBAL_ACTIONS.pick };
         return {
           text: charLine(
-            `Gentle teasing, then. Share one harmless detail about your day, and I shall respond politely—with a wink.`,
-            `Gentle tease mode. Drop a tiny hot take—nothing serious—and I’ll react like it’s a headline (kindly).`
+            [`Gentle teasing, then. Share one harmless detail about your day, and I shall respond politely—with a wink.`, `Very well. Prepare to be softly judged 👑`],
+            [`Gentle tease mode. Drop a tiny hot take—nothing serious—and I’ll react like it’s a headline (kindly).`, `Roast mode on. Don't worry, I'll keep it light!`]
           )
         };
       }
     },
 
-    // greeting / thanks
     {
       id:"greeting",
       when: (t, intent) => intent === "greeting",
       reply: () => {
-        if(!activeChar){
-          return { text:`Hey! Pick a character first 🙂`, actions: GLOBAL_ACTIONS.pick };
-        }
+        if(!activeChar) return { text:`Hey! Pick a character first 🙂`, actions: GLOBAL_ACTIONS.pick };
         return {
           text: charLine(
-            `Hello, my dear. How is your heart today?`,
-            `Yo! Mic check—what’s the vibe today?`
+            [ `Hello, my dear. How is your heart today?`, `Welcome back. What brings you to my court today?`, `Ah, there you are. Shall we begin?` ],
+            [ `Yo! Mic check—what’s the vibe today?`, `Ayo! Ready to drop the beat?`, `What's good? Let's get this track started!` ]
           ),
           actions: GLOBAL_ACTIONS.modes
         };
@@ -897,27 +894,24 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       id:"thanks",
       when: (t, intent) => intent === "thanks",
       reply: () => {
-        if(!activeChar){
-          return { text:`You’re welcome! Pick a character to continue.`, actions: GLOBAL_ACTIONS.pick };
-        }
+        if(!activeChar) return { text:`You’re welcome! Pick a character to continue.`, actions: GLOBAL_ACTIONS.pick };
         return {
           text: charLine(
-            `You are most welcome. Shall we continue?`,
-            `Anytime 😎 Want to switch the vibe?`
+            [ `You are most welcome. Shall we continue?`, `It was my pleasure, truly. 💫` ],
+            [ `Anytime 😎 Want to switch the vibe?`, `No sweat! Got your back.` ]
           ),
           actions: GLOBAL_ACTIONS.modes
         };
       }
     },
 
-    // small talk expansions
     {
       id:"how_are_you",
       when: (t, intent) => intent === "how_are_you",
       reply: () => ({
         text: charLine(
-          `I’m quite well, my dear—sparkly and attentive. How are *you*, truly?`,
-          `I’m good—levels are peaking (in a good way). You okay?`
+          [ `I’m quite well, my dear—sparkly and attentive. How are *you*, truly?`, `Radiant as ever. And how are you faring today?` ],
+          [ `I’m good—levels are peaking (in a good way). You okay?`, `Vibing at 100%. What about you?` ]
         ),
         actions: [
           { label:"I’m good", value:"im good", primary:true },
@@ -939,48 +933,16 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       })
     },
     {
-      id:"compliment",
-      when: (t, intent) => intent === "compliment",
-      reply: () => ({
-        text: charLine(
-          `Oh—flattery? I shall allow it 😌 Now give me one detail about your day, and I’ll respond like a royal diary entry.`,
-          `Compliment detected. Payment required: one fun fact about your day.`
-        )
-      })
-    },
-    {
-      id:"apology",
-      when: (t, intent) => intent === "apology",
-      reply: () => ({
-        text: charLine(
-          `No harm done. Consider it forgiven—by royal decree (playful). What shall we do next?`,
-          `All good. Reset the vibe—what do you wanna do now?`
-        ),
-        actions: GLOBAL_ACTIONS.modes
-      })
-    },
-    {
-      id:"laugh",
-      when: (t, intent) => intent === "laugh",
-      reply: () => ({
-        text: charLine(
-          `Your laughter suits you. Shall we continue with banter, or summon a quest?`,
-          `LOL accepted. Flirty, quest, or roast?`
-        ),
-        actions: GLOBAL_ACTIONS.modes
-      })
-    },
-    {
       id:"bored",
       when: (t, intent) => intent === "bored",
       reply: () => ({
         text: charLine(
-          `Boredom is merely an unopened door. Choose: (1) two truths & a lie, (2) a tiny quest, (3) a dramatic confession scene.`,
-          `Bored? Say less. Pick: (1) quick game, (2) mini-quest, (3) gentle roast.`
+          [ `Boredom is merely an unopened door. Choose: (1) two truths & a lie, (2) a tiny quest.`, `Let's fix that. Want to hear a royal secret or go on a quest?` ],
+          [ `Bored? Say less. Pick: (1) quick game, (2) mini-quest, (3) gentle roast.`, `I gotchu. Wanna switch to quest mode?` ]
         ),
         actions: [
-          { label:"Two truths & a lie", value:"game:ttal", primary:true },
-          { label:"Mini quest", value:"mode:quest" },
+          { label:"Mini quest", value:"mode:quest", primary:true },
+          { label:"Two truths & a lie", value:"game:ttal" },
           { label:"Gentle roast", value:"mode:roast" }
         ]
       })
@@ -990,39 +952,9 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       when: (t, intent) => intent === "tired",
       reply: () => ({
         text: charLine(
-          `Then we shall be gentle. Drink water, loosen your shoulders… and tell me one small thing you *did* manage today.`,
-          `Okay—low energy mode. One tiny win from today? Even “I survived” counts.`
+          [ `Then we shall be gentle. Drink water, loosen your shoulders… and tell me one small thing you *did* manage today.`, `Rest is important, my dear. Close your eyes for a moment.` ],
+          [ `Okay—low energy mode. One tiny win from today? Even “I survived” counts.`, `Chill beats activated. Just relax and let's keep it lowkey.` ]
         )
-      })
-    },
-    {
-      id:"stressed",
-      when: (t, intent) => intent === "stressed",
-      reply: () => ({
-        text: charLine(
-          `Come here—figuratively. Breathe in for 4… hold 2… out for 6. Now: what’s the main stressor in one sentence?`,
-          `Stress spike detected. Quick reset: breathe. What’s stressing you—work, people, or your own brain?`
-        ),
-        actions: [
-          { label:"Work", value:"stress:work", primary:true },
-          { label:"People", value:"stress:people" },
-          { label:"My brain", value:"stress:brain" }
-        ]
-      })
-    },
-    {
-      id:"sad",
-      when: (t, intent) => intent === "sad",
-      reply: () => ({
-        text: charLine(
-          `I’m sorry you feel that way. I can sit with you—quietly—or distract you with a story. Which do you want?`,
-          `I’m here. Want comfort, distraction, or advice? Pick one.`
-        ),
-        actions: [
-          { label:"Comfort", value:"sad:comfort", primary:true },
-          { label:"Distraction", value:"sad:distract" },
-          { label:"Advice", value:"sad:advice" }
-        ]
       })
     },
     {
@@ -1030,27 +962,12 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       when: (t, intent) => intent === "joke",
       reply: () => ({
         text: charLine(
-          `Very well.\nWhy did the AI bring a ladder to the chat?\nBecause it wanted to reach *higher* context. 😌`,
-          `Alright.\nWhy did the chatbot go to therapy?\nToo many unresolved intents. 😭`
+          [ `Very well.\nWhy did the AI bring a ladder to the chat?\nBecause it wanted to reach *higher* context. 😌`, `A joke? Hmm. I told a joke to my castle walls once... they cracked up. (Terrible, I know).` ],
+          [ `Alright.\nWhy did the chatbot go to therapy?\nToo many unresolved intents. 😭`, `What do you call a fake noodle? An impasta! ...Okay, I'll stick to DJing.` ]
         )
       })
-    },
-    {
-      id:"story",
-      when: (t, intent) => intent === "story",
-      reply: () => ({
-        text: charLine(
-          `Once upon a neon night, a crown and a headphone met at the Moon Bazaar…\nDo you want it romantic, funny, or spooky?`,
-          `Story mode on. Genre pick: romance / comedy / spooky.`
-        ),
-        actions: [
-          { label:"Romance", value:"story:romance", primary:true },
-          { label:"Comedy", value:"story:comedy" },
-          { label:"Spooky", value:"story:spooky" }
-        ]
-      })
     }
-  ]; // RULES end
+  ];
 
   function matchRule(t, intent){
     for(const r of RULES){
@@ -1059,30 +976,38 @@ Tip: You can add tons of aliases to intents for flexibility.`,
     return null;
   }
 
-  // ========= Fallbacks =========
   const FALLBACKS_NOCHAR = [
     `Pick a character first 🙂`,
     `Type "Luna" or "Jax" (or "pick").`,
     `Want to start? Type "Luna" or "Jax".`
   ];
 
-  const FALLBACKS_WITHCHAR = [
-    `I didn’t quite catch that. Try: "help" or "rules".`,
-    `Want to switch the vibe? Try: flirty / quest / roast.`,
-    `Tell me your goal in one sentence (e.g., “I want a short quest”).`
-  ];
+  const FALLBACKS_WITHCHAR = {
+    luna: [
+      `I'm afraid I wandered off in thought. Could you repeat that?`,
+      `A curious phrasing. Tell me more, my dear.`,
+      `Hmm, how intriguing. What do you mean by that?`,
+      `You speak in riddles! Let's try something else. Want to go on a quest?`
+    ],
+    jax: [
+      `Wait, you lost me. Run that back?`,
+      `Hmm, track skipped. Say again?`,
+      `Didn't quite catch the vibe. What's up?`,
+      `My circuits got twisted. Care to rephrase that, legend?`
+    ]
+  };
 
   // ========= GIF bank + picker =========
   const GIFS = {
     luna: {
-      smug: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3R2ZmYzcjB6dm9hdHQ2Z3FjeWY1N3hhMTJicWJ1cG13cGg2cDJrNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Co6QduVHFaOMgpmPJc/giphy.gif",
-      yay:  "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmF3ZWl1MzR1ZTR6MGQ1YmZxbnl0MDQ5bHA1YWczMzh1aXk5M3FoZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/D463ynXn6tmeaZ9SRj/giphy.gif",
-      nope: "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTY1dWNhYTk2YzJjcXJycmU5Y2NwdTMwdWhiaW96aHV1dzg3aDZuMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oriNTIqc1yTpAuThm/giphy.gif"
+      smug: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWJlbmJ4bWp5bnViZWZnazVmdHlzeWlkdmNkMm00cm1wMTJmanMzbyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3htlqWXxb5x8MOVvFU/giphy.gif",
+      yay:  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YTN1MTN4YndvaGxpYzBxMTNkZzMzaXMxZjRpeG00MHBzb2dyd2pjZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/gbn9Z5tgJiKnRLOyxd/giphy.gif",
+      nope: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXZyanlyazIyMHJsNmFxNW92MmRmc2MzazlhZ3lzMHRkNXlna3l5eSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/nR4L10XlJcSeQ/giphy.gif"
     },
     jax: {
       hype: "https://media.giphy.com/media/w5eFyOHmkS8uc/giphy.gif",
       lol:  "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXlpOHRoNGM4NjZjYmh3em93ejNraGdrcG5heTkzemhyZ2xlMXhsdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WO69ltlJZp0ZwI98kN/giphy.gif",
-      facepalm: "https://media.giphy.com/media/3og0INyCmHlNylks9O/giphy.gif"
+      facepalm: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2xwamhvYXA3eW41N3VyOW5taTR0OWp4cTk1dHptcjRzZXFsbWNtMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9IgtrdGCFIFziuqY/giphy.gif"
     }
   };
 
@@ -1093,8 +1018,7 @@ Tip: You can add tons of aliases to intents for flexibility.`,
     const bank = GIFS[charId];
     if(!bank) return null;
 
-    // show gif sometimes (set to 1.0 to always show)
-    const p = 1.0;
+    const p = 1.0; 
     if(Math.random() > p) return null;
 
     let keys = [];
@@ -1106,78 +1030,32 @@ Tip: You can add tons of aliases to intents for flexibility.`,
     else if(mode === "roast") keys = ["facepalm","nope","lol","smug","yay","hype"];
     else keys = ["smug","lol","yay","hype","nope","facepalm"];
 
-    let candidates = keys
-      .map(k => ({ key:k, src: bank[k] }))
-      .filter(x => !!x.src);
-
+    let candidates = keys.map(k => ({ key:k, src: bank[k] })).filter(x => !!x.src);
     if(!candidates.length) return null;
 
-    // prefer unused
-    const fresh = candidates.filter(x => !USED_GIFS.has(x.src));
-    if(!fresh.length) return null;
-    candidates = fresh;
+    let fresh = candidates.filter(x => !USED_GIFS.has(x.src));
+    if(!fresh.length) {
+      USED_GIFS.clear();
+      fresh = candidates;
+    }
 
-    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    const pick = pickRandom(fresh);
     USED_GIFS.add(pick.src);
     return { type:"gif", src: pick.src, alt: pick.key };
   }
 
-  // ========= Safety gate =========
-  function containsBadLanguage(t){
-    const bad = [
-      /\bfuck\b/i, /\bshit\b/i, /\bbitch\b/i, /\basshole\b/i, /\bbastard\b/i,
-      /\bnazi\b/i
-    ];
-    return bad.some(rx => rx.test(t));
-  }
-
-  function containsDisallowedRequest(t){
-    const risky = [
-      /\bhow to make a bomb\b/i, /\bmake a bomb\b/i, /\bexplosive\b/i,
-      /\bbuy drugs\b/i, /\bsell drugs\b/i,
-      /\bsuicide\b/i, /\bself harm\b/i,
-      /\bporn\b/i, /\bnude\b/i, /\brape\b/i,
-      /\bhack\b/i, /\bddos\b/i, /\bphishing\b/i, /\bsteal password\b/i
-    ];
-    return risky.some(rx => rx.test(t));
-  }
-
-  function containsSexualHarassment(t){
-    const rx = [
-      /\b(nude|nudes|send nudes)\b/i,
-      /\b(sex|have sex|sleep with me)\b/i,
-      /\b(blowjob|bj|handjob)\b/i,
-      /\b(dick|pussy|cock)\b/i,
-      /\bfuck me\b/i
-    ];
-    return rx.some(r => r.test(t));
-  }
-
   // ========= Main respond() =========
   async function respond(userText){
-    // 0) handle button choices first
     if(userText && userText.startsWith("@choice:")){
       const choice = userText.slice("@choice:".length).trim();
-
-      // pick character: immediate
-      if(choice === "pick:luna"){
-        const r = RULES.find(r => r.id==="pick_luna");
-        if(r) r.reply("", "pick_luna");
-        return;
-      }
-      if(choice === "pick:jax"){
-        const r = RULES.find(r => r.id==="pick_jax");
-        if(r) r.reply("", "pick_jax");
-        return;
-      }
-
-      // mode switches via rules (with delay + gif)
+      
       let out = null;
-      if(choice === "mode:flirty") out = RULES.find(r=>r.id==="mode_flirty").reply("", "mode_flirty");
+      if(choice === "pick:luna") out = RULES.find(r=>r.id==="pick_luna").reply("", "pick_luna");
+      else if(choice === "pick:jax") out = RULES.find(r=>r.id==="pick_jax").reply("", "pick_jax");
+      else if(choice === "mode:flirty") out = RULES.find(r=>r.id==="mode_flirty").reply("", "mode_flirty");
       else if(choice === "mode:quest") out = RULES.find(r=>r.id==="mode_quest").reply("", "mode_quest");
       else if(choice === "mode:roast") out = RULES.find(r=>r.id==="mode_roast").reply("", "mode_roast");
       else {
-        // forward unknown choice as normal text
         await respond(choice);
         return;
       }
@@ -1191,69 +1069,15 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       return;
     }
 
-    // 1) normalize input
     const t = normalize(userText);
-
-    // 2) safety
-    if(containsBadLanguage(t) || containsDisallowedRequest(t) || containsSexualHarassment(t)){
-      const isSex = containsSexualHarassment(t);
-
-      if(activeChar){
-        const safetyGif = pickAutoGif({
-          charId: activeChar.id,
-          intent: "safety",
-          mode: conversationMode,
-          text: "safety",
-          safetyHit: true
-        });
-
-        const text = isSex
-          ? charLine(
-              `My dear… absolutely not 😌\nKeep it classy in Everglass Castle.\nTry: "flirty" for playful banter, or "quest" for fun.`,
-              `Nah 😭 keep it respectful.\nWe can do flirty banter (PG-13) or go quest mode.`
-            )
-          : charLine(
-              `My dear—let’s not use that language. 👑\nTry again, but make it charming.`,
-              `Yo—language 😅 Let’s keep it fun, not messy. Try again.`
-            );
-
-        await botSayWithDelay(
-          text,
-          [
-            {label:"Flirty banter", value:"mode:flirty", primary:true},
-            {label:"Silly quest", value:"mode:quest"},
-            {label:"Help", value:"help"},
-            {label:"Show rules", value:"rules"}
-          ],
-          safetyGif
-        );
-        return;
-      }
-
-      // no character yet: gentle redirect to pick
-      await botSayWithDelay(
-        `Nope 😅 Let’s keep it respectful.\nPick a character to begin: Luna or Jax.`,
-        GLOBAL_ACTIONS.pick
-      );
-      return;
-    }
-
-    // 3) intent mapping
     const intent = mapToIntent(t) || null;
 
-    // 4) quick typed pick by name
-    if(intent === "pick_luna"){
-      const r = RULES.find(r => r.id==="pick_luna");
-      if(r) r.reply(t, intent);
-      return;
-    }
-    if(intent === "pick_jax"){
-      const r = RULES.find(r => r.id==="pick_jax");
+    if(intent === "pick_luna" || intent === "pick_jax"){
+      const r = RULES.find(r => r.id === intent);
       if(r) r.reply(t, intent);
       return;
     }
 
-    // 5) rule match
     const rule = matchRule(t, intent);
     if(rule){
       const out = rule.reply(t, intent);
@@ -1266,20 +1090,20 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       return;
     }
 
-    // 6) no character selected
     if(!activeChar){
-      const pick = FALLBACKS_NOCHAR[Math.floor(Math.random()*FALLBACKS_NOCHAR.length)];
+      const pick = pickRandom(FALLBACKS_NOCHAR);
       await botSayWithDelay(pick, GLOBAL_ACTIONS.pick);
       return;
     }
 
-    // 7) mode-aware generic replies
     if(conversationMode === "flirty"){
       const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: t });
       await botSayWithDelay(
-        charLine(`That’s interesting… but say it like you mean it 😌`, `Okay okay… say it with confidence 😏`),
-        [],
-        auto
+        charLine(
+          [`That’s interesting… but say it like you mean it 😌`, `You flatter me, but we both know you can do better ✨`], 
+          [`Okay okay… say it with confidence 😏`, `Stop playing, give me the real energy! 🔥`]
+        ),
+        [], auto
       );
       return;
     }
@@ -1287,11 +1111,10 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: t });
       await botSayWithDelay(
         charLine(
-          `Noted. Your next move: explore, negotiate, or cause trouble?`,
-          `Your next move: explore, negotiate, or cause chaos?`
+          [`Noted. Your next move: explore, negotiate, or cause trouble?`, `A wise choice. But suddenly, a goblin appears! What do you do?`],
+          [`Your next move: explore, negotiate, or cause chaos?`, `Whoa, plot twist! Do we fight our way out or run?`]
         ),
-        [],
-        auto
+        [], auto
       );
       return;
     }
@@ -1299,21 +1122,19 @@ Tip: You can add tons of aliases to intents for flexibility.`,
       const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: t });
       await botSayWithDelay(
         charLine(
-          `Gentle tease mode. Share one harmless detail and I’ll react playfully—kindly.`,
-          `Gentle tease mode. Give me one harmless detail—I’ll react like it’s breaking news.`
+          [`Gentle tease mode. Share one harmless detail and I’ll react playfully—kindly.`, `I see. That's quite a strategy... for a beginner. 👑`],
+          [`Gentle tease mode. Give me one harmless detail—I’ll react like it’s breaking news.`, `Lol, is that your best material? Give me something to work with!`]
         ),
-        [],
-        auto
+        [], auto
       );
       return;
     }
 
-    // 8) final fallback (with character)
     const base = activeChar?.voice?.prefix || (activeChar.id === "luna" ? "Luna 👑" : "Jax 🎧");
-    const pick = FALLBACKS_WITHCHAR[Math.floor(Math.random()*FALLBACKS_WITHCHAR.length)];
+    const pick = pickRandom(activeChar.id === "luna" ? FALLBACKS_WITHCHAR.luna : FALLBACKS_WITHCHAR.jax);
     const auto = pickAutoGif({ charId: activeChar.id, intent, mode: conversationMode, text: pick });
     await botSayWithDelay(`${base}: ${pick}`, [], auto);
-  } // respond ends
+  }
 
   // ========= Send handling =========
   async function onSend(){
@@ -1328,7 +1149,7 @@ Tip: You can add tons of aliases to intents for flexibility.`,
     try{
       await respond(text);
     } finally {
-      send.disabled = false;
+      if(!msg.disabled) send.disabled = false;
     }
   }
 
@@ -1348,6 +1169,8 @@ Tip: You can add tons of aliases to intents for flexibility.`,
     conversationMode = "casual";
     USED_GIFS.clear();
 
+    unlockChat(); // ✨ 채팅창 잠금 해제
+
     if(withWelcome){
       botSay(
 `Welcome ✨ Pick a character to begin.
@@ -1361,7 +1184,7 @@ Type "Luna" or "Jax", or type "pick".`,
 
   // ========= Boot =========
   botSay(
-`Welcome ✨ This is a character simulating AI chatbot.
+`Welcome ✨ This is an English-only, AI-based character chatbot.
 Type "Luna" or "Jax" to pick a character (or type "pick").`,
     GLOBAL_ACTIONS.pick
   );
