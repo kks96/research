@@ -460,7 +460,6 @@
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  // ✨ 채팅창 잠금 함수
   function lockChat(reason = "Chat locked.") {
     msg.disabled = true;
     send.disabled = true;
@@ -472,7 +471,6 @@
     });
   }
 
-  // ✨ 채팅창 잠금 해제 함수
   function unlockChat() {
     msg.disabled = false;
     send.disabled = false;
@@ -524,6 +522,9 @@
   let typingRowEl = null;
   let conversationMode = "casual";
   let awaitingPick = true;
+  
+  // ✨ 추가: 무한 루프를 위한 전역 인덱스 변수
+  let currentGifIndex = 0;
 
   // ========= Character helpers =========
   function getIntroForCharacter(ch){
@@ -541,6 +542,7 @@
     if(!ch) return;
     activeChar = ch;
     awaitingPick = false;
+    currentGifIndex = 0; // 캐릭터 변경 시 GIF 순서도 처음으로 리셋
     addSystemRow(`You are now chatting with ${ch.name}.`);
     botSay(getIntroForCharacter(ch));
   }
@@ -571,7 +573,7 @@
       bubble.appendChild(t);
     }
 
-    if(media && media.type === "gif" && media.src){
+    if(media && media.type === "gif" && media.src && !media.src.includes("YOUR_")){
       const img = document.createElement("img");
       img.src = media.src;
       img.alt = media.alt || "gif";
@@ -983,7 +985,6 @@
     ]
   };
 
-  // ✨ 수정: GIF 리스트의 역할을 일반, 부정적 상황, 작별 인사의 세 가지 그룹으로 분리
   const GIFS = {
     luna: {
       general: [
@@ -1003,26 +1004,23 @@
     }
   };
 
-  const USED_GIFS = new Set();
-
+  // ✨ 수정: GIF가 바닥나지 않도록 순서대로 계속 반복하는(Loop) 로직으로 교체
   function pickAutoGif({ charId, intent, mode }) {
     if(!charId) return null;
     const bank = GIFS[charId];
     if(!bank) return null;
 
-    // ✨ 1. 특정 상황(사과, 슬픔, 놀림 모드)일 때만 Nope, Facepalm 등의 부정적 리액션을 사용
+    // 1. 특정 상황(사과, 슬픔, 놀림 모드)일 때만 Nope, Facepalm 등의 부정적 리액션을 사용
     const isNegative = (intent === "apology" || intent === "sad" || mode === "roast");
     if (isNegative && bank.negative) {
-      // (부정적 GIF는 USED_GIFS 소진 제한에 포함하지 않습니다)
       return { type: "gif", src: bank.negative.src, alt: bank.negative.id };
     }
 
-    // ✨ 2. 평상시에는 일반(general) GIF 중에서 사용하지 않은 것을 선택
-    let fresh = bank.general.filter(g => !USED_GIFS.has(g.src));
-    if (fresh.length === 0) return null; // 만일을 대비한 안전장치
-
-    const pick = fresh[0]; // <--- 무조건 순서대로(첫 번째) 가져오도록 수정!
-    USED_GIFS.add(pick.src);
+    // 2. 평상시에는 일반(general) GIF를 고정된 순서로 무한 반복해서 보여줌
+    if (bank.general.length === 0) return null;
+    const pick = bank.general[currentGifIndex % bank.general.length];
+    currentGifIndex++; // 다음 순서로 이동
+    
     return { type:"gif", src: pick.src, alt: pick.id };
   }
 
@@ -1030,24 +1028,6 @@
   async function respond(userText){
     const t = normalize(userText);
     const intent = mapToIntent(t) || null;
-
-    // ✨ 모든 로직 시작 전: 만약 일반 GIF 리스트가 바닥났다면?
-    let isExhausted = false;
-    if (activeChar) {
-      const bank = GIFS[activeChar.id];
-      const fresh = bank.general.filter(g => !USED_GIFS.has(g.src));
-      if (fresh.length === 0) isExhausted = true;
-    }
-
-    // ✨ 강제로 'bye'를 치거나, GIF가 완전히 소진되면 사용자가 무슨 입력을 했든 무조건 작별 인사 후 잠금
-    if (intent === "bye" || (activeChar && isExhausted)) {
-      const rule = RULES.find(r => r.id === "bye");
-      if(rule){
-        const out = rule.reply(t, "bye");
-        await botSayWithDelay(out.text || "", out.actions || [], out.media);
-      }
-      return; 
-    }
 
     // 버튼 초이스 처리
     if(userText && userText.startsWith("@choice:")){
@@ -1173,7 +1153,7 @@
     activeChar = null;
     awaitingPick = true;
     conversationMode = "casual";
-    USED_GIFS.clear();
+    currentGifIndex = 0; // ✨ 리셋 시 GIF 순서도 0으로 초기화
 
     unlockChat(); 
 
