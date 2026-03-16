@@ -824,13 +824,15 @@
 
       if (value === "pick:luna") {
         const ch = setActiveCharacter("luna");
-        await botSayWithDelay(getIntroForCharacter(ch), GLOBAL_ACTIONS.modes, pickAutoGif("greeting"));
+        // 핵심: 세 번째 인자(actions)를 빈 배열 []로 전달하여 첫 인사 때는 버튼을 숨깁니다.
+        await botSayWithDelay(getIntroForCharacter(ch), [], pickAutoGif("greeting"));
         return;
       }
 
       if (value === "pick:jax") {
         const ch = setActiveCharacter("jax");
-        await botSayWithDelay(getIntroForCharacter(ch), GLOBAL_ACTIONS.modes, pickAutoGif("greeting"));
+        // 핵심: 세 번째 인자(actions)를 빈 배열 []로 전달하여 첫 인사 때는 버튼을 숨깁니다.
+        await botSayWithDelay(getIntroForCharacter(ch), [], pickAutoGif("greeting"));
         return;
       }
 
@@ -910,13 +912,13 @@
     if (!state.activeChar) {
       if (intent === "pick" || intent === "pick_luna" || t === "luna") {
         const ch = setActiveCharacter("luna");
-        await botSayWithDelay(getIntroForCharacter(ch), GLOBAL_ACTIONS.modes, pickAutoGif("greeting"));
+        await botSayWithDelay(getIntroForCharacter(ch), [], pickAutoGif("greeting"));
         return;
       }
 
       if (intent === "pick_jax" || t === "jax") {
         const ch = setActiveCharacter("jax");
-        await botSayWithDelay(getIntroForCharacter(ch), GLOBAL_ACTIONS.modes, pickAutoGif("greeting"));
+        await botSayWithDelay(getIntroForCharacter(ch), [], pickAutoGif("greeting"));
         return;
       }
 
