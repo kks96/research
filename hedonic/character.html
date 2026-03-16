@@ -6,6 +6,7 @@
   <title>Character Chat</title>
   <style>
     :root{
+      /* Hedonic / character.ai-ish palette */
       --bg0:#07070c;
       --bg1:#0b1024;
 
@@ -30,7 +31,6 @@
 
     *{box-sizing:border-box}
     html,body{height:100%}
-
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -41,11 +41,13 @@
         radial-gradient(900px 700px at 50% 100%, rgba(139,92,246,.15), transparent 60%),
         linear-gradient(180deg, var(--bg1), var(--bg0));
       overflow:hidden;
-      overflow-y:auto;
+      overflow-y: auto;
     }
 
+    /* floating bokeh */
     .bokeh{
       position:fixed; inset:0; pointer-events:none; opacity:.65;
+      filter: blur(0px);
       background:
         radial-gradient(80px 80px at 10% 20%, rgba(236,72,153,.22), transparent 60%),
         radial-gradient(120px 120px at 70% 15%, rgba(56,189,248,.20), transparent 60%),
@@ -53,34 +55,37 @@
         radial-gradient(140px 140px at 20% 80%, rgba(132,204,22,.12), transparent 60%);
       animation: drift 14s ease-in-out infinite alternate;
     }
-
     @keyframes drift{
       0%{transform:translate3d(0,0,0) scale(1)}
       100%{transform:translate3d(-12px, 10px,0) scale(1.03)}
     }
-
+    html, body { height: 100%; }
+    body { margin:0; }
+    
     .wrap{
-      max-width:980px;
-      width:100%;
-      height:100%;
-      margin:0 auto;
-      padding:16px;
+      max-width: 980px;
+      width: 100%;
+      height: 100%;
+      margin: 0 auto;
+      padding: 16px;
     }
 
+    /* Main card */
     .card{
-      width:100%;
-      max-width:980px;
-      height:100%;
-      min-height:520px;
+      width: 100%;
+      max-width: 980px;
+      height: 100%;
+      min-height: 520px; 
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
       border:1px solid rgba(255,255,255,.12);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       backdrop-filter: blur(18px) saturate(140%);
       overflow:hidden;
       position:relative;
     }
 
+    /* animated gradient edge */
     .card::before{
       content:"";
       position:absolute; inset:-2px;
@@ -97,13 +102,12 @@
       z-index:0;
       animation: spin 10s linear infinite;
     }
-
     @keyframes spin{to{transform:rotate(360deg)}}
 
     .cardInner{
-      position:relative;
-      width:100%;
-      height:100%;
+      position: relative;
+      width: 100%;
+      height: 100%;
       background: linear-gradient(180deg, rgba(12,12,22,.78), rgba(8,8,14,.86));
       z-index:1;
       display:flex;
@@ -111,6 +115,7 @@
       min-height:0;
     }
 
+    /* top bar */
     .topbar{
       display:flex;
       align-items:center;
@@ -171,13 +176,15 @@
     }
     .chip:hover{filter:brightness(1.08)}
 
+    /* Main area layout */
     .main{
       flex:1 1 auto;
       min-height:0;
       display:grid;
-      grid-template-columns:1fr;
+      grid-template-columns: 1fr;
     }
 
+    /* Chat panel */
     .panel{
       display:flex;
       flex-direction:column;
@@ -195,7 +202,7 @@
         radial-gradient(900px 600px at 30% 0%, rgba(236,72,153,.10), transparent 60%),
         radial-gradient(900px 600px at 80% 20%, rgba(56,189,248,.08), transparent 55%),
         linear-gradient(180deg, rgba(6,7,14,.55), rgba(6,7,14,.80));
-      scroll-behavior:smooth;
+      scroll-behavior: smooth;
     }
 
     .row{display:flex; gap:10px; margin:10px 0; align-items:flex-end}
@@ -214,12 +221,12 @@
     .avatar img{width:100%;height:100%;object-fit:cover;display:block}
 
     .bubble{
-      display:inline-block;
-      width:auto;
-      max-width:100%;
-      min-width:0;
+      display: inline-block;
+      width: auto;
+      max-width: 100%;
+      min-width: 0;
       padding:12px 14px;
-      border-radius:18px;
+      border-radius: 18px;
       line-height:1.45;
       white-space:pre-wrap;
       word-break:normal;
@@ -231,26 +238,24 @@
       box-shadow: 0 12px 30px rgba(0,0,0,.35);
       position:relative;
       overflow:hidden;
-      overflow-wrap:break-word;
+      overflow-wrap: break-word;
     }
-
     .row.bot .bubble{
       background:
         radial-gradient(300px 140px at 20% 0%, rgba(236,72,153,.18), transparent 70%),
         linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
     }
-
     .row.me .bubble{
       background:
         radial-gradient(300px 140px at 80% 0%, rgba(56,189,248,.16), transparent 70%),
         linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
       border-color: rgba(56,189,248,.22);
     }
-
-    .row.error .bubble{
-      background: rgba(255,0,0,0.18);
-      border-color: rgba(255,90,90,0.7);
-      color: #ffd6d6;
+    /* ✨ 에러 발생시 보여줄 버블 스타일 */
+    .row.error .bubble {
+      background: rgba(255, 0, 0, 0.2);
+      border-color: red;
+      color: #ffbaba;
     }
 
     .meta{
@@ -265,7 +270,6 @@
       flex-wrap:wrap;
       margin-top:10px;
     }
-
     .actionBtn{
       padding:9px 12px;
       border-radius:999px;
@@ -275,27 +279,43 @@
       background: rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.14);
       box-shadow: 0 10px 22px rgba(0,0,0,.26);
-      max-width:100%;
-      min-width:0;
-      flex:1 1 auto;
-      white-space:normal;
-      overflow-wrap:anywhere;
-      transition:all 0.2s;
+      max-width: 100%;
+      min-width: 0;
+      flex: 1 1 auto;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      transition: all 0.2s;
     }
-
+    @media (max-width: 480px){
+      .wrap{
+        transform: scale(0.92);
+        transform-origin: top center;
+      }
+      .log{
+        max-height: 460px;
+      }
+      textarea.input{
+        font-size: 13px;
+        min-height: 44px;
+      }
+      .btn{
+        padding: 10px 12px;
+      }
+    }
     .actionBtn.primary{
       border:none;
       background: linear-gradient(135deg, rgba(236,72,153,.95), rgba(56,189,248,.92));
       box-shadow: 0 16px 34px rgba(236,72,153,.16);
     }
-
     .actionBtn:hover:not(:disabled){filter:brightness(1.1); transform:translateY(-1px);}
     .actionBtn:disabled{opacity:0.5; cursor:not-allowed;}
 
+    /* composer */
     .composer{
       padding:12px 14px;
       border-top:1px solid rgba(255,255,255,.10);
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
       display:flex;
       gap:10px;
       align-items:flex-end;
@@ -315,11 +335,10 @@
       color:var(--text);
       background: rgba(255,255,255,.06);
       box-shadow: inset 0 0 0 1px rgba(139,92,246,.08);
-      transition:all 0.3s;
+      transition: all 0.3s;
     }
-
     textarea.input::placeholder{color: rgba(240,245,255,.42)}
-    textarea.input:disabled{opacity:.5; background: rgba(0,0,0,0.2); cursor:not-allowed;}
+    textarea.input:disabled { opacity: 0.5; background: rgba(0,0,0,0.2); cursor: not-allowed; }
 
     .btn{
       padding:12px 14px;
@@ -332,12 +351,12 @@
       box-shadow:
         0 0 0 1px rgba(255,255,255,.10),
         0 16px 40px rgba(139,92,246,.20);
-      transition:all 0.3s;
+      transition: all 0.3s;
     }
-
     .btn:hover:not(:disabled){filter:brightness(1.1); transform:scale(1.02);}
     .btn:disabled{opacity:.4; cursor:not-allowed; filter:grayscale(0.5);}
 
+    /* typing */
     .typing{
       display:inline-flex;
       align-items:center;
@@ -348,7 +367,6 @@
       border:1px solid rgba(255,255,255,.12);
       backdrop-filter: blur(8px);
     }
-
     .dot{
       width:6px;height:6px;border-radius:999px;
       background: radial-gradient(circle, rgba(251,207,232,1), rgba(236,72,153,1));
@@ -358,12 +376,9 @@
     }
     .dot:nth-child(2){animation-delay:.15s}
     .dot:nth-child(3){animation-delay:.3s}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.55}40%{transform:translateY(-6px);opacity:1}}
 
-    @keyframes bounce{
-      0%,80%,100%{transform:translateY(0);opacity:.55}
-      40%{transform:translateY(-6px);opacity:1}
-    }
-
+    /* toast */
     .toast{
       position:absolute;
       bottom:16px; left:50%;
@@ -379,26 +394,14 @@
       display:none;
       z-index:6;
     }
-
-    @media (max-width: 480px){
-      .wrap{
-        transform: scale(0.92);
-        transform-origin: top center;
-      }
-      .log{max-height:460px;}
-      textarea.input{
-        font-size:13px;
-        min-height:44px;
-      }
-      .btn{padding:10px 12px;}
-    }
   </style>
 </head>
+
 <body>
   <div class="bokeh"></div>
 
   <div class="wrap">
-    <div class="card">
+    <div class="card" id="card">
       <div class="cardInner">
 
         <div class="topbar">
@@ -408,6 +411,7 @@
               <div class="brandTitle" id="appTitle">AI Character Chatbot</div>
             </div>
           </div>
+
           <div class="chip" id="resetBtn" title="Reset">
             <span>↻</span><span>Reset</span>
           </div>
@@ -418,10 +422,7 @@
             <div class="log" id="log"></div>
 
             <div class="composer">
-              <textarea
-                class="input"
-                id="msg"
-                rows="2"
+              <textarea class="input" id="msg" rows="2"
                 placeholder='Enter = send, Shift+Enter = new line. Example: "pick", "Luna", or "Jax".'></textarea>
               <button class="btn" id="send">Send</button>
             </div>
@@ -429,81 +430,80 @@
         </div>
 
         <div class="toast" id="toast"></div>
+
       </div>
     </div>
   </div>
 
 <script>
-(function () {
-  const $ = (id) => document.getElementById(id);
+(function(){
+  // ========= Utility =========
+  const $ = function(id) { return document.getElementById(id); };
   const log = $("log");
   const msg = $("msg");
   const send = $("send");
   const resetBtn = $("resetBtn");
   const toast = $("toast");
 
-  const state = {
-    activeChar: null,
-    awaitingPick: true,
-    conversationMode: "casual",
-    isLocked: false,
-    isProcessing: false,
-    typingEl: null,
-    currentGifIndex: 0
-  };
-
-  function nowTime() {
+  function nowTime(){
     const d = new Date();
-    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+  }
+  function normalize(text){
+    return (text||"").trim().toLowerCase().replace(/\s+/g," ");
+  }
+  function sleep(ms){ 
+    return new Promise(function(r) { setTimeout(r, ms); }); 
   }
 
-  function normalize(text) {
-    return (text || "").trim().toLowerCase().replace(/\s+/g, " ");
-  }
-
-  function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  function showToast(text) {
+  function showToast(text){
+    if(!toast) return;
     toast.textContent = text;
     toast.style.display = "block";
-    clearTimeout(showToast._timer);
-    showToast._timer = setTimeout(() => {
-      toast.style.display = "none";
-    }, 1800);
-  }
-
-  function scrollToBottom() {
-    requestAnimationFrame(() => {
-      log.scrollTop = log.scrollHeight;
-    });
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function() { toast.style.display="none"; }, 1800);
   }
 
   function pickRandom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  function svgAvatarDataURI(config) {
-    const { bgA, bgB, emoji, accent } = config;
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-        <defs>
-          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="${bgA}"/>
-            <stop offset="1" stop-color="${bgB}"/>
-          </linearGradient>
-          <radialGradient id="r" cx="30%" cy="25%" r="70%">
-            <stop offset="0" stop-color="${accent}" stop-opacity="0.55"/>
-            <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-          </radialGradient>
-        </defs>
-        <rect width="128" height="128" rx="34" fill="url(#g)"/>
-        <rect width="128" height="128" rx="34" fill="url(#r)"/>
-        <circle cx="64" cy="70" r="36" fill="rgba(255,255,255,0.88)"/>
-        <text x="64" y="78" font-size="40" text-anchor="middle" dominant-baseline="middle">${emoji}</text>
-      </svg>
-    `;
+  function lockChat(reason) {
+    msg.disabled = true;
+    send.disabled = true;
+    msg.placeholder = reason || "Chat locked.";
+    
+    const actionBtns = log.querySelectorAll('.actionBtn');
+    for (var i=0; i<actionBtns.length; i++) {
+      actionBtns[i].disabled = true;
+    }
+  }
+
+  function unlockChat() {
+    msg.disabled = false;
+    send.disabled = false;
+    msg.placeholder = 'Enter = send, Shift+Enter = new line. Example: "pick", "Luna", or "Jax".';
+  }
+
+  // ========= Characters =========
+  function svgAvatarDataURI(config){
+    const bgA = config.bgA, bgB = config.bgB, emoji = config.emoji, accent = config.accent;
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">' +
+        '<defs>' +
+          '<linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+            '<stop offset="0" stop-color="' + bgA + '"/>' +
+            '<stop offset="1" stop-color="' + bgB + '"/>' +
+          '</linearGradient>' +
+          '<radialGradient id="r" cx="30%" cy="25%" r="70%">' +
+            '<stop offset="0" stop-color="' + accent + '" stop-opacity="0.55"/>' +
+            '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/>' +
+          '</radialGradient>' +
+        '</defs>' +
+        '<rect width="128" height="128" rx="34" fill="url(#g)"/>' +
+        '<rect width="128" height="128" rx="34" fill="url(#r)"/>' +
+        '<circle cx="64" cy="70" r="36" fill="rgba(255,255,255,0.88)"/>' +
+        '<text x="64" y="78" font-size="40" text-anchor="middle" dominant-baseline="middle">' + emoji + '</text>' +
+      '</svg>';
     return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg.trim());
   }
 
@@ -514,7 +514,7 @@
       tagline: "Princess of Everglass Castle",
       description: "Regal, warm, and playful in a gentle way.",
       avatar: svgAvatarDataURI({ bgA:"#ec4899", bgB:"#8b5cf6", emoji:"👑", accent:"#fbcfe8" }),
-      prefix: "Luna 👑"
+      voice: { prefix: "Luna 👑" }
     },
     {
       id: "jax",
@@ -522,101 +522,57 @@
       tagline: "Neon Club DJ & Hype Captain",
       description: "Fast, upbeat, and rhythm-obsessed.",
       avatar: svgAvatarDataURI({ bgA:"#38bdf8", bgB:"#22c55e", emoji:"🎧", accent:"#cffafe" }),
-      prefix: "Jax 🎧"
+      voice: { prefix: "Jax 🎧" }
     }
   ];
 
-  const GIFS = {
-    luna: {
-      general: [
-        { id:"smug", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWJlbmJ4bWp5bnViZWZnazVmdHlzeWlkdmNkMm00cm1wMTJmanMzbyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3htlqWXxb5x8MOVvFU/giphy.gif" },
-        { id:"yay", src:"https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YTN1MTN4YndvaGxpYzBxMTNkZzMzaXMxZjRpeG00MHBzb2dyd2pjZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/gbn9Z5tgJiKnRLOyxd/giphy.gif" }
-      ],
-      negative: { id:"nope", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXZyanlyazIyMHJsNmFxNW92MmRmc2MzazlhZ3lzMHRkNXlna3l5eSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/nR4L10XlJcSeQ/giphy.gif" },
-      bye: { id:"luna_bye", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGwzMWF0c3FzZ2JsemUwMTlteHFlczY4NG16NjlqbWw4cmhuNTk3NyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Bht33KS4YXaHS5ABOP/giphy.gif" }
-    },
-    jax: {
-      general: [
-        { id:"hype", src:"https://media.giphy.com/media/w5eFyOHmkS8uc/giphy.gif" },
-        { id:"lol", src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXlpOHRoNGM4NjZjYmh3em93ejNraGdrcG5heTkzemhyZ2xlMXhsdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WO69ltlJZp0ZwI98kN/giphy.gif" }
-      ],
-      negative: { id:"facepalm", src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2xwamhvYXA3eW41N3VyOW5taTR0OWp4cTk1dHptcjRzZXFsbWNtMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9IgtrdGCFIFziuqY/giphy.gif" },
-      bye: { id:"jax_bye", src:"https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cDYzOTdsdzdnMjIxbW5xdXlqZjlsMnJvZnpocHA1dWJyazlzcG1qNiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/IHeP5FkVoNoRcjGmyG/giphy.gif" }
-    }
-  };
+  let activeChar = null;
+  let typingRowEl = null;
+  let conversationMode = "casual";
+  let awaitingPick = true;
+  
+  let currentGifIndex = 0;
 
-  const GLOBAL_ACTIONS = {
-    pick: [
-      { label: "Pick Luna", value: "pick:luna", primary: true },
-      { label: "Pick Jax", value: "pick:jax", primary: false }
-    ],
-    modes: [
-      { label: "Flirty banter", value: "mode:flirty", primary: true },
-      { label: "Silly quest", value: "mode:quest" },
-      { label: "Roast me", value: "mode:roast" }
-    ]
-  };
-
-  const FALLBACKS_NOCHAR = [
-    "Pick a character first 🙂",
-    "Type \"Luna\" or \"Jax\" (or \"pick\").",
-    "Want to start? Type \"Luna\" or \"Jax\"."
-  ];
-
-  const FALLBACKS_WITHCHAR = {
-    luna: [
-      "I'm afraid I wandered off in thought. Could you repeat that?",
-      "A curious phrasing. Tell me more, my dear.",
-      "Hmm, how intriguing. What do you mean by that?",
-      "You speak in riddles. Shall we try a different vibe?"
-    ],
-    jax: [
-      "Wait, you lost me. Run that back?",
-      "Hmm, track skipped. Say again?",
-      "Didn't quite catch the vibe. What's up?",
-      "My circuits got twisted. Care to rephrase that, legend?"
-    ]
-  };
-
-  function getIntroForCharacter(ch) {
-    if (ch.id === "luna") {
+  // ========= Character helpers =========
+  function getIntroForCharacter(ch){
+    if(ch.id === "luna"){
       return "Welcome to Everglass Castle.\nTell me your purpose, and I shall respond with grace—wisdom, whimsy, or a playful quest.";
     }
-    if (ch.id === "jax") {
+    if(ch.id === "jax"){
       return "Yo—mic check! Welcome to the Neon Booth.\nGive me a topic and a vibe—chill, hype, or storytelling—and I’ll remix it.";
     }
     return "Hello.";
   }
 
-  function getActiveCharacter() {
-    return Characters.find(c => c.id === state.activeChar) || null;
+  function setActiveCharacter(charId){
+    const ch = Characters.find(function(c) { return c.id === charId; });
+    if(!ch) return;
+    activeChar = ch;
+    awaitingPick = false;
+    currentGifIndex = 0; 
+    addSystemRow("You are now chatting with " + ch.name + ".");
+    botSay(getIntroForCharacter(ch));
   }
 
-  function lockChat(reason) {
-    state.isLocked = true;
-    msg.disabled = true;
-    send.disabled = true;
-    msg.placeholder = reason || "Chat locked.";
-    log.querySelectorAll(".actionBtn").forEach(btn => btn.disabled = true);
-  }
+  // ========= Chat rendering =========
+  function addRow(data){
+    const who = data.who;
+    const text = data.text;
+    const avatarUrl = data.avatarUrl;
+    const actions = data.actions || [];
+    const media = data.media || null;
+    const isError = data.isError || false; // ✨ 에러 표시용 추가
 
-  function unlockChat() {
-    state.isLocked = false;
-    msg.disabled = false;
-    send.disabled = false;
-    msg.placeholder = 'Enter = send, Shift+Enter = new line. Example: "pick", "Luna", or "Jax".';
-  }
-
-  function addRow({ who, text, avatarUrl, actions = [], media = null, isError = false }) {
     const row = document.createElement("div");
-    row.className = "row " + (who === "me" ? "me" : "bot") + (isError ? " error" : "");
+    row.className = "row " + (who === "me" ? "me" : "bot");
+    if (isError) row.className += " error";
 
-    if (who === "bot") {
+    if(who === "bot"){
       const av = document.createElement("div");
       av.className = "avatar";
       const img = document.createElement("img");
-      img.alt = "Bot";
-      img.src = avatarUrl || Characters[0].avatar;
+      img.alt = (activeChar ? activeChar.name : "Bot");
+      img.src = avatarUrl || (activeChar ? activeChar.avatar : Characters[0].avatar);
       av.appendChild(img);
       row.appendChild(av);
     }
@@ -625,13 +581,14 @@
     const bubble = document.createElement("div");
     bubble.className = "bubble";
 
-    if (text) {
-      const content = document.createElement("div");
-      content.textContent = text;
-      bubble.appendChild(content);
+    if(text){
+      const t = document.createElement("div");
+      t.textContent = text;
+      t.style.whiteSpace = "pre-wrap";
+      bubble.appendChild(t);
     }
 
-    if (media && media.type === "gif" && media.src) {
+    if(media && media.type === "gif" && media.src && media.src.indexOf("YOUR_") === -1){
       const img = document.createElement("img");
       img.src = media.src;
       img.alt = media.alt || "gif";
@@ -645,23 +602,20 @@
       bubble.appendChild(img);
     }
 
-    if (who === "bot" && actions.length > 0) {
+    if(who === "bot" && actions.length > 0){
       const actionsEl = document.createElement("div");
       actionsEl.className = "actions";
-
-      actions.forEach(action => {
+      actions.forEach(function(a) {
         const b = document.createElement("button");
-        b.className = "actionBtn " + (action.primary ? "primary" : "");
-        b.textContent = action.label;
-        b.disabled = state.isLocked || state.isProcessing;
-        b.addEventListener("click", async () => {
-          if (state.isLocked || state.isProcessing) return;
-          addRow({ who: "me", text: action.label });
-          await handleInput("@choice:" + (action.value || action.label));
-        });
+        b.className = "actionBtn " + (a.primary ? "primary" : "");
+        b.textContent = a.label;
+        b.onclick = function() {
+          if (b.disabled) return;
+          addRow({who:"me", text: a.label});
+          respond("@choice:" + (a.value || a.label));
+        };
         actionsEl.appendChild(b);
       });
-
       bubble.appendChild(actionsEl);
     }
 
@@ -674,13 +628,15 @@
 
     row.appendChild(wrap);
     log.appendChild(row);
-    scrollToBottom();
+    
+    setTimeout(function() {
+      log.scrollTo({ top: log.scrollHeight, behavior: 'smooth' });
+    }, 10);
   }
 
-  function addSystemRow(text) {
+  function addSystemRow(text){
     const row = document.createElement("div");
     row.className = "row bot";
-
     const wrap = document.createElement("div");
     const bubble = document.createElement("div");
     bubble.className = "bubble";
@@ -689,32 +645,26 @@
     bubble.style.fontSize = "13px";
     bubble.style.borderStyle = "dashed";
     bubble.style.background = "rgba(255,255,255,.04)";
-
     wrap.appendChild(bubble);
-
     const meta = document.createElement("div");
     meta.className = "meta";
     meta.textContent = nowTime();
     wrap.appendChild(meta);
-
     row.appendChild(wrap);
     log.appendChild(row);
-    scrollToBottom();
+    log.scrollTo({ top: log.scrollHeight, behavior: 'smooth' });
   }
 
-  function showTyping() {
-    if (state.typingEl) return;
-
-    const ch = getActiveCharacter();
+  function showTyping(){
+    if(typingRowEl) return;
     const row = document.createElement("div");
     row.className = "row bot";
 
     const av = document.createElement("div");
     av.className = "avatar";
-
     const img = document.createElement("img");
-    img.alt = ch ? ch.name : "Bot";
-    img.src = ch ? ch.avatar : Characters[0].avatar;
+    img.alt = (activeChar ? activeChar.name : "Bot");
+    img.src = activeChar ? activeChar.avatar : Characters[0].avatar;
     av.appendChild(img);
 
     const typing = document.createElement("div");
@@ -723,545 +673,569 @@
 
     row.appendChild(av);
     row.appendChild(typing);
-    state.typingEl = row;
+    typingRowEl = row;
     log.appendChild(row);
-    scrollToBottom();
+    log.scrollTo({ top: log.scrollHeight, behavior: 'smooth' });
   }
 
-  function hideTyping() {
-    if (!state.typingEl) return;
-    state.typingEl.remove();
-    state.typingEl = null;
+  function hideTyping(){
+    if(!typingRowEl) return;
+    typingRowEl.remove();
+    typingRowEl = null;
   }
 
-  function pickAutoGif(intent) {
-    const ch = getActiveCharacter();
-    if (!ch) return null;
-
-    const bank = GIFS[ch.id];
-    if (!bank) return null;
-
-    const negativeIntents = ["apology", "sad", "stressed"];
-    if (negativeIntents.includes(intent) || state.conversationMode === "roast") {
-      if (bank.negative) {
-        return { type: "gif", src: bank.negative.src, alt: bank.negative.id };
-      }
+  function botSay(text, actions, media){
+    let autoGif = null;
+    if (!media && activeChar) {
+      autoGif = pickAutoGif({ charId: activeChar.id, intent: "auto", mode: conversationMode });
+    } else if (media) {
+      autoGif = media;
     }
 
-    if (!bank.general || bank.general.length === 0) return null;
-    const picked = bank.general[state.currentGifIndex % bank.general.length];
-    state.currentGifIndex += 1;
-    return { type: "gif", src: picked.src, alt: picked.id };
-  }
-
-  async function botSayWithDelay(text, actions = [], media = null, delayMs = 700) {
-    showTyping();
-    await sleep(delayMs);
-    hideTyping();
-
-    const ch = getActiveCharacter();
     addRow({
-      who: "bot",
-      text,
-      avatarUrl: ch ? ch.avatar : Characters[0].avatar,
-      actions,
-      media
+      who:"bot",
+      text: text,
+      avatarUrl: activeChar ? activeChar.avatar : null,
+      actions: actions || [],
+      media: autoGif
     });
   }
 
-  function mapToIntent(t) {
-    const patterns = [
-      { intent: "bye", tests: [/^(bye|goodbye|quit|exit|leave|cya|see ya)\b/i] },
-      { intent: "pick", tests: [/^pick\b/i, /\bchoose\b/i, /\bselect\b/i, /\bcharacter\b/i, /\bswitch\b/i] },
-      { intent: "pick_luna", tests: [/^pick\s+luna\b/i, /^choose\s+luna\b/i, /^select\s+luna\b/i, /^\s*luna\s*$/i, /\bluna\b/i] },
-      { intent: "pick_jax", tests: [/^pick\s+jax\b/i, /^choose\s+jax\b/i, /^select\s+jax\b/i, /^\s*jax\s*$/i, /\bjax\b/i] },
-      { intent: "help", tests: [/^help\b/i, /\bwhat can you do\b/i, /\boptions\b/i, /\bcommands\b/i] },
-      { intent: "rules", tests: [/^rules\b/i, /\bwhat do you understand\b/i, /\bsupported\b/i] },
-      { intent: "reset", tests: [/^reset\b/i, /\brestart\b/i, /\bstart over\b/i] },
-      { intent: "mode_flirty", tests: [/\bflirty\b/i, /\bflirt\b/i, /\bromance\b/i, /\bcompliment\b/i] },
-      { intent: "mode_quest", tests: [/\bquest\b/i, /\badventure\b/i, /\bstory mode\b/i, /\brole ?play\b/i, /\brp\b/i] },
-      { intent: "mode_roast", tests: [/\broast\b/i, /\btease me\b/i, /\bgently tease\b/i] },
-      { intent: "greeting", tests: [/^(hi|hello|hey|yo|sup)\b/i, /\bgood (morning|afternoon|evening)\b/i] },
-      { intent: "thanks", tests: [/^(thanks|thank you|thx|ty)\b/i] },
-      { intent: "how_are_you", tests: [/^how are you\b/i, /^hru\b/i, /^how r u\b/i] },
-      { intent: "who_are_you", tests: [/^who are you\b/i, /^what are you\b/i, /^introduce yourself\b/i] },
-      { intent: "apology", tests: [/^sorry\b/i, /\bmy bad\b/i, /\bi apologize\b/i] },
-      { intent: "laugh", tests: [/\blol\b/i, /\blmao\b/i, /\bhaha\b/i] },
-      { intent: "bored", tests: [/\bi'?m bored\b/i, /\bbored\b/i] },
-      { intent: "tired", tests: [/\bi'?m tired\b/i, /\btired\b/i, /\bsleepy\b/i] },
-      { intent: "stressed", tests: [/\bstressed\b/i, /\banxious\b/i, /\boverwhelmed\b/i] },
-      { intent: "sad", tests: [/\bsad\b/i, /\bdown\b/i, /\bdepressed\b/i] },
-      { intent: "joke", tests: [/\btell me a joke\b/i, /^\s*joke\s*$/i] },
-      { intent: "story", tests: [/\btell me a story\b/i, /^\s*story\s*$/i] }
+  async function botSayWithDelay(text, actions, media, opts){
+    actions = actions || [];
+    media = media || null;
+    opts = opts || {};
+    const immediate = opts.immediate || false;
+    const delayMs = opts.delayMs || 950;
+
+    if(immediate){
+      botSay(text, actions, media);
+      return;
+    }
+    showTyping();
+    await sleep(delayMs);
+    hideTyping();
+    botSay(text, actions, media);
+  }
+
+  function charLine(lunaTexts, jaxTexts){
+    if(!activeChar) return Array.isArray(lunaTexts) ? lunaTexts[0] : lunaTexts;
+    const choices = activeChar.id === "luna" ? lunaTexts : jaxTexts;
+    return Array.isArray(choices) ? pickRandom(choices) : choices;
+  }
+
+  // ========= Actions / modes =========
+  const GLOBAL_ACTIONS = {
+    pick: [
+      { label: "Pick Luna", value: "pick:luna", primary:true },
+      { label: "Pick Jax",  value: "pick:jax",  primary:false }
+    ],
+    modes: [
+      { label: "Flirty banter", value: "mode:flirty", primary:true },
+      { label: "Silly quest",   value: "mode:quest" },
+      { label: "Roast me",      value: "mode:roast" }
+    ]
+  };
+
+  // ========= Intents =========
+  function mapToIntent(t){
+    const MAP = [
+      { intent:"bye", rx:[ /\b(bye|goodbye|quit|leave|exit|cya|see ya)\b/i ]}, 
+
+      { intent:"pick", rx:[ /^pick\b/i, /\bchoose\b/i, /\bselect\b/i, /\bcharacter\b/i, /\bswitch\b/i ]},
+      { intent:"pick_luna", rx:[ /^pick\s+luna\b/i, /^choose\s+luna\b/i, /^select\s+luna\b/i, /^\s*luna\s*$/i, /\bluna\b/i ]},
+      { intent:"pick_jax",  rx:[ /^pick\s+jax\b/i, /^choose\s+jax\b/i, /^select\s+jax\b/i, /^\s*jax\s*$/i, /\bjax\b/i ]},
+
+      { intent:"help",  rx:[ /^help\b/i, /\bwhat can you do\b/i, /\boptions\b/i, /\bhow does this work\b/i, /\bcommands\b/i ]},
+      { intent:"rules", rx:[ /^rules\b/i, /\bwhat do you understand\b/i, /\bkeywords\b/i, /\bsupported\b/i ]},
+      { intent:"reset", rx:[ /^reset\b/i, /\brestart\b/i, /\bstart over\b/i ]},
+
+      { intent:"mode_flirty", rx:[ /\bflirt(y)?\b/i, /\bromance\b/i, /\bcompliment\b/i ]},
+      { intent:"mode_quest",  rx:[ /\bquest\b/i, /\badventure\b/i, /\bstory\b/i, /\brole\s*play\b/i, /\brp\b/i ]},
+      { intent:"mode_roast",  rx:[ /\broast\b/i, /\bgently tease\b/i, /\btease me\b/i ]},
+
+      { intent:"greeting", rx:[ /^(hi|hello|hey|yo|sup)\b/i, /\bgood (morning|afternoon|evening)\b/i ]},
+      { intent:"thanks",   rx:[ /^(thanks|thank you|thx|ty)\b/i ]},
+
+      { intent:"how_are_you", rx:[ /^how are you\b/i, /^hru\b/i, /^how r u\b/i ]},
+      { intent:"who_are_you", rx:[ /^who are you\b/i, /^what are you\b/i, /^introduce yourself\b/i ]},
+      { intent:"compliment",  rx:[ /\bcompliment\b/i, /\byou(')?re (cute|awesome|great)\b/i, /\bi like you\b/i ]},
+      { intent:"apology",     rx:[ /^sorry\b/i, /\bmy bad\b/i, /\bi apologize\b/i ]},
+      { intent:"laugh",       rx:[ /\blol\b/i, /\blmao\b/i, /\bhaha\b/i, /\bthat'?s funny\b/i ]},
+      { intent:"bored",       rx:[ /\bi'?m bored\b/i, /\bbored\b/i ]},
+      { intent:"tired",       rx:[ /\bi'?m tired\b/i, /\btired\b/i, /\bsleepy\b/i ]},
+      { intent:"stressed",    rx:[ /\bstressed\b/i, /\banxious\b/i, /\boverwhelmed\b/i ]},
+      { intent:"sad",         rx:[ /\bsad\b/i, /\bdown\b/i, /\bdepressed\b/i ]},
+      { intent:"joke",        rx:[ /\btell me a joke\b/i, /\bjoke\b/i ]},
+      { intent:"story",       rx:[ /\btell me a story\b/i, /\bstory\b/i ]},
     ];
 
-    for (const group of patterns) {
-      for (const rx of group.tests) {
-        if (rx.test(t)) return group.intent;
+    for(var i=0; i<MAP.length; i++){
+      var m = MAP[i];
+      for(var j=0; j<m.rx.length; j++) {
+        if(m.rx[j].test(t)) return m.intent;
       }
     }
     return null;
   }
 
-  function setActiveCharacter(charId) {
-    const ch = Characters.find(c => c.id === charId);
-    if (!ch) return null;
+  // ========= Rules =========
+  const RULES = [
+    {
+      id:"bye",
+      when: function(t, intent) { return intent === "bye"; },
+      reply: function() {
+        setTimeout(function() { lockChat("The chat is locked. Press Reset to start a new conversation."); }, 1200);
+        
+        let byeMedia = null;
+        if (activeChar && activeChar.id === "luna") {
+          byeMedia = { type: "gif", src: GIFS.luna.bye.src, alt: "luna_bye" };
+        } else if (activeChar && activeChar.id === "jax") {
+          byeMedia = { type: "gif", src: GIFS.jax.bye.src, alt: "jax_bye" };
+        }
+        
+        return {
+          text: charLine(
+            "It seems my time here is up. I must return to my royal duties now. Farewell, my dear. ✨",
+            "Track's done and I gotta bounce! Catch you on the flip side. 🎧"
+          ),
+          media: byeMedia
+        };
+      }
+    },
 
-    state.activeChar = ch.id;
-    state.awaitingPick = false;
-    state.currentGifIndex = 0;
+    {
+      id:"start_gate",
+      when: function(t, intent) { return awaitingPick && !activeChar; },
+      reply: function() {
+        return {
+          text: "Welcome ✨ This is an English-only, AI-based character chatbot.\nPick a character to begin by typing \"Luna\" or \"Jax\" (or type \"pick\").",
+          actions: GLOBAL_ACTIONS.pick
+        };
+      }
+    },
+    {
+      id:"pick_shortcut",
+      when: function(t, intent) { return intent === "pick" || t.startsWith("pick "); },
+      reply: function() {
+        return {
+          text: "Who do you want to chat with?",
+          actions: GLOBAL_ACTIONS.pick
+        };
+      }
+    },
+    {
+      id:"pick_luna",
+      when: function(t, intent) { return intent === "pick_luna" || t === "@choice:pick:luna"; },
+      reply: function() { setActiveCharacter("luna"); return { text: null }; }
+    },
+    {
+      id:"pick_jax",
+      when: function(t, intent) { return intent === "pick_jax" || t === "@choice:pick:jax"; },
+      reply: function() { setActiveCharacter("jax"); return { text: null }; }
+    },
 
-    addSystemRow("You are now chatting with " + ch.name + ".");
-    return ch;
+    {
+      id:"help",
+      when: function(t, intent) { return intent === "help"; },
+      reply: function() {
+        return {
+          text: "Here are some things you can try:\n• \"rules\" (see supported intents)\n• \"flirty\" / \"quest\" / \"roast\" (change vibe)\n• \"bye\" (end chat)\n• Small talk: \"how are you\", \"joke\", \"bored\"",
+          actions: [
+            { label:"Pick a character", value:"pick", primary:true },
+            { label:"Show rules", value:"rules" },
+            { label:"End Chat", value:"bye" }
+          ]
+        };
+      }
+    },
+    {
+      id:"rules",
+      when: function(t, intent) { return intent === "rules"; },
+      reply: function() {
+        return {
+          text: "Supported intents:\n• picking: \"pick\", \"luna\", \"jax\"\n• modes: \"flirty\", \"quest\", \"roast\"\n• exit: \"bye\", \"quit\"\n• small talk: \"how are you\", \"joke\", \"story\", \"bored\", \"stressed\", \"tired\"",
+          actions: GLOBAL_ACTIONS.modes
+        };
+      }
+    },
+    {
+      id:"reset",
+      when: function(t, intent) { return intent === "reset"; },
+      reply: function() { hardReset(true); return { text: null }; }
+    },
+
+    {
+      id:"mode_flirty",
+      when: function(t, intent) { return intent === "mode_flirty" || t === "@choice:mode:flirty" || t === "flirty"; },
+      reply: function() {
+        conversationMode = "flirty";
+        if(!activeChar) return { text:"Pick a character first 🙂", actions: GLOBAL_ACTIONS.pick };
+        return {
+          text: charLine(
+            ["Flirty mode? Say less. Compliment me in 5 words 😌", "Oh? Feeling bold? Let's see your best royal pickup line."],
+            ["Flirty mode? Bold. Hit me with your best pickup line. I will judge it.", "Ooh, turning up the heat. What've you got? 😏"]
+          )
+        };
+      }
+    },
+    {
+      id:"mode_quest",
+      when: function(t, intent) { return intent === "mode_quest" || t === "@choice:mode:quest" || t === "quest"; },
+      reply: function() {
+        conversationMode = "quest";
+        if(!activeChar) return { text:"Pick a character first 🙂", actions: GLOBAL_ACTIONS.pick };
+        return {
+          text: charLine(
+            ["Quest time! Choose: (1) haunted arcade, (2) moon bazaar, (3) secret karaoke dungeon.", "An adventure? Grab your sword! Where to first?"],
+            ["Quest mode. Choose your weapon: sarcasm, charm, or chaos.", "Let's go. Are we fighting dragons or dodging lasers today?"]
+          )
+        };
+      }
+    },
+    {
+      id:"mode_roast",
+      when: function(t, intent) { return intent === "mode_roast" || t === "@choice:mode:roast" || t === "roast"; },
+      reply: function() {
+        conversationMode = "roast";
+        if(!activeChar) return { text:"Pick a character first 🙂", actions: GLOBAL_ACTIONS.pick };
+        return {
+          text: charLine(
+            ["Gentle teasing, then. Share one harmless detail about your day, and I shall respond politely—with a wink.", "Very well. Prepare to be softly judged 👑"],
+            ["Gentle tease mode. Drop a tiny hot take—nothing serious—and I’ll react like it’s a headline (kindly).", "Roast mode on. Don't worry, I'll keep it light!"]
+          )
+        };
+      }
+    },
+
+    {
+      id:"greeting",
+      when: function(t, intent) { return intent === "greeting"; },
+      reply: function() {
+        if(!activeChar) return { text:"Hey! Pick a character first 🙂", actions: GLOBAL_ACTIONS.pick };
+        return {
+          text: charLine(
+            [ "Hello, my dear. How is your heart today?", "Welcome back. What brings you to my court today?", "Ah, there you are. Shall we begin?" ],
+            [ "Yo! Mic check—what’s the vibe today?", "Ayo! Ready to drop the beat?", "What's good? Let's get this track started!" ]
+          ),
+          actions: GLOBAL_ACTIONS.modes
+        };
+      }
+    },
+    {
+      id:"thanks",
+      when: function(t, intent) { return intent === "thanks"; },
+      reply: function() {
+        if(!activeChar) return { text:"You’re welcome! Pick a character to continue.", actions: GLOBAL_ACTIONS.pick };
+        return {
+          text: charLine(
+            [ "You are most welcome. Shall we continue?", "It was my pleasure, truly. 💫" ],
+            [ "Anytime 😎 Want to switch the vibe?", "No sweat! Got your back." ]
+          ),
+          actions: GLOBAL_ACTIONS.modes
+        };
+      }
+    },
+
+    {
+      id:"how_are_you",
+      when: function(t, intent) { return intent === "how_are_you"; },
+      reply: function() {
+        return {
+          text: charLine(
+            [ "I’m quite well, my dear—sparkly and attentive. How are *you*, truly?", "Radiant as ever. And how are you faring today?" ],
+            [ "I’m good—levels are peaking (in a good way). You okay?", "Vibing at 100%. What about you?" ]
+          ),
+          actions: [
+            { label:"I’m good", value:"im good", primary:true },
+            { label:"I’m tired", value:"im tired" },
+            { label:"I’m stressed", value:"im stressed" },
+            { label:"I’m bored", value:"im bored" }
+          ]
+        };
+      }
+    },
+    {
+      id:"who_are_you",
+      when: function(t, intent) { return intent === "who_are_you"; },
+      reply: function() {
+        return {
+          text: charLine(
+            "I am Luna of Everglass—an AI spirit wearing a crown for fun. Tell me what you seek: comfort, mischief, or a tiny quest?",
+            "I’m Jax—AI DJ, vibe mechanic, occasional menace (friendly). Tell me your mood and I’ll remix the chat."
+          ),
+          actions: GLOBAL_ACTIONS.modes
+        };
+      }
+    },
+    {
+      id:"bored",
+      when: function(t, intent) { return intent === "bored"; },
+      reply: function() {
+        return {
+          text: charLine(
+            [ "Boredom is merely an unopened door. Choose: (1) two truths & a lie, (2) a tiny quest.", "Let's fix that. Want to hear a royal secret or go on a quest?" ],
+            [ "Bored? Say less. Pick: (1) quick game, (2) mini-quest, (3) gentle roast.", "I gotchu. Wanna switch to quest mode?" ]
+          ),
+          actions: [
+            { label:"Mini quest", value:"mode:quest", primary:true },
+            { label:"Two truths & a lie", value:"game:ttal" },
+            { label:"Gentle roast", value:"mode:roast" }
+          ]
+        };
+      }
+    },
+    {
+      id:"tired",
+      when: function(t, intent) { return intent === "tired"; },
+      reply: function() {
+        return {
+          text: charLine(
+            [ "Then we shall be gentle. Drink water, loosen your shoulders… and tell me one small thing you *did* manage today.", "Rest is important, my dear. Close your eyes for a moment." ],
+            [ "Okay—low energy mode. One tiny win from today? Even “I survived” counts.", "Chill beats activated. Just relax and let's keep it lowkey." ]
+          )
+        };
+      }
+    },
+    {
+      id:"joke",
+      when: function(t, intent) { return intent === "joke"; },
+      reply: function() {
+        return {
+          text: charLine(
+            [ "Very well.\nWhy did the AI bring a ladder to the chat?\nBecause it wanted to reach *higher* context. 😌", "A joke? Hmm. I told a joke to my castle walls once... they cracked up. (Terrible, I know)." ],
+            [ "Alright.\nWhy did the chatbot go to therapy?\nToo many unresolved intents. 😭", "What do you call a fake noodle? An impasta! ...Okay, I'll stick to DJing." ]
+          )
+        };
+      }
+    }
+  ];
+
+  const FALLBACKS_NOCHAR = [
+    "Pick a character first 🙂",
+    "Type \"Luna\" or \"Jax\" (or \"pick\").",
+    "Want to start? Type \"Luna\" or \"Jax\"."
+  ];
+
+  const FALLBACKS_WITHCHAR = {
+    luna: [
+      "I'm afraid I wandered off in thought. Could you repeat that?",
+      "A curious phrasing. Tell me more, my dear.",
+      "Hmm, how intriguing. What do you mean by that?",
+      "You speak in riddles! Let's try something else. Want to go on a quest?"
+    ],
+    jax: [
+      "Wait, you lost me. Run that back?",
+      "Hmm, track skipped. Say again?",
+      "Didn't quite catch the vibe. What's up?",
+      "My circuits got twisted. Care to rephrase that, legend?"
+    ]
+  };
+
+  const GIFS = {
+    luna: {
+      general: [
+        { id:"smug", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWJlbmJ4bWp5bnViZWZnazVmdHlzeWlkdmNkMm00cm1wMTJmanMzbyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3htlqWXxb5x8MOVvFU/giphy.gif" },
+        { id:"yay",  src:"https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YTN1MTN4YndvaGxpYzBxMTNkZzMzaXMxZjRpeG00MHBzb2dyd2pjZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/gbn9Z5tgJiKnRLOyxd/giphy.gif" }
+      ],
+      negative: { id:"nope", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXZyanlyazIyMHJsNmFxNW92MmRmc2MzazlhZ3lzMHRkNXlna3l5eSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/nR4L10XlJcSeQ/giphy.gif" },
+      bye: { id:"luna_bye", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGwzMWF0c3FzZ2JsemUwMTlteHFlczY4NG16NjlqbWw4cmhuNTk3NyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Bht33KS4YXaHS5ABOP/giphy.gif" }
+    },
+    jax: {
+      general: [
+        { id:"hype", src:"https://media.giphy.com/media/w5eFyOHmkS8uc/giphy.gif" },
+        { id:"lol",  src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXlpOHRoNGM4NjZjYmh3em93ejNraGdrcG5heTkzemhyZ2xlMXhsdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WO69ltlJZp0ZwI98kN/giphy.gif" }
+      ],
+      negative: { id:"facepalm", src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2xwamhvYXA3eW41N3VyOW5taTR0OWp4cTk1dHptcjRzZXFsbWNtMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9IgtrdGCFIFziuqY/giphy.gif" },
+      bye: { id:"jax_bye", src:"https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cDYzOTdsdzdnMjIxbW5xdXlqZjlsMnJvZnpocHA1dWJyazlzcG1qNiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/IHeP5FkVoNoRcjGmyG/giphy.gif" }
+    }
+  };
+
+  function pickAutoGif(config) {
+    const charId = config.charId;
+    const intent = config.intent;
+    const mode = config.mode;
+
+    if(!charId) return null;
+    const bank = GIFS[charId];
+    if(!bank) return null;
+
+    const isNegative = (intent === "apology" || intent === "sad" || mode === "roast");
+    if (isNegative && bank.negative) {
+      return { type: "gif", src: bank.negative.src, alt: bank.negative.id };
+    }
+
+    if (bank.general.length === 0) return null;
+    const pick = bank.general[currentGifIndex % bank.general.length];
+    currentGifIndex++; 
+    
+    return { type:"gif", src: pick.src, alt: pick.id };
   }
 
-  async function routeReply(inputText) {
-    const t = normalize(inputText);
-    const intent = mapToIntent(t);
-
-    if (inputText.startsWith("@choice:")) {
-      const value = inputText.slice("@choice:".length).trim();
-
-      if (value === "pick:luna") {
-        const ch = setActiveCharacter("luna");
-        await botSayWithDelay(getIntroForCharacter(ch), GLOBAL_ACTIONS.modes, pickAutoGif("greeting"));
-        return;
-      }
-
-      if (value === "pick:jax") {
-        const ch = setActiveCharacter("jax");
-        await botSayWithDelay(getIntroForCharacter(ch), GLOBAL_ACTIONS.modes, pickAutoGif("greeting"));
-        return;
-      }
-
-      if (value === "mode:flirty") {
-        state.conversationMode = "flirty";
-        if (!state.activeChar) {
-          await botSayWithDelay("Pick a character first 🙂", GLOBAL_ACTIONS.pick);
-          return;
-        }
-        await botSayWithDelay(
-          getActiveCharacter().id === "luna"
-            ? "Flirty mode? Say less. Compliment me in 5 words 😌"
-            : "Flirty mode? Bold. Hit me with your best pickup line. I will judge it.",
-          [],
-          pickAutoGif("greeting")
-        );
-        return;
-      }
-
-      if (value === "mode:quest") {
-        state.conversationMode = "quest";
-        if (!state.activeChar) {
-          await botSayWithDelay("Pick a character first 🙂", GLOBAL_ACTIONS.pick);
-          return;
-        }
-        await botSayWithDelay(
-          getActiveCharacter().id === "luna"
-            ? "Quest time! Choose: haunted arcade, moon bazaar, or secret karaoke dungeon."
-            : "Quest mode. Choose your weapon: sarcasm, charm, or chaos.",
-          [],
-          pickAutoGif("story")
-        );
-        return;
-      }
-
-      if (value === "mode:roast") {
-        state.conversationMode = "roast";
-        if (!state.activeChar) {
-          await botSayWithDelay("Pick a character first 🙂", GLOBAL_ACTIONS.pick);
-          return;
-        }
-        await botSayWithDelay(
-          getActiveCharacter().id === "luna"
-            ? "Very well. Prepare to be softly judged 👑"
-            : "Roast mode on. Don’t worry, I’ll keep it light.",
-          [],
-          pickAutoGif("laugh")
-        );
-        return;
-      }
-
-      await routeReply(value);
-      return;
+  function matchRule(t, intent){
+    for(var i=0; i<RULES.length; i++){
+      if(RULES[i].when(t, intent)) return RULES[i];
     }
-
-    if (intent === "reset") {
-      hardReset(true);
-      return;
-    }
-
-    if (intent === "bye") {
-      const ch = getActiveCharacter();
-      const byeMedia = ch ? { type: "gif", src: GIFS[ch.id].bye.src, alt: GIFS[ch.id].bye.id } : null;
-      await botSayWithDelay(
-        ch && ch.id === "luna"
-          ? "It seems my time here is up. I must return to my royal duties now. Farewell, my dear. ✨"
-          : ch && ch.id === "jax"
-          ? "Track's done and I gotta bounce! Catch you on the flip side. 🎧"
-          : "Goodbye.",
-        [],
-        byeMedia
-      );
-      lockChat("The chat is locked. Press Reset to start a new conversation.");
-      return;
-    }
-
-    if (!state.activeChar) {
-      if (intent === "pick" || intent === "pick_luna" || t === "luna") {
-        const ch = setActiveCharacter("luna");
-        await botSayWithDelay(getIntroForCharacter(ch), GLOBAL_ACTIONS.modes, pickAutoGif("greeting"));
-        return;
-      }
-
-      if (intent === "pick_jax" || t === "jax") {
-        const ch = setActiveCharacter("jax");
-        await botSayWithDelay(getIntroForCharacter(ch), GLOBAL_ACTIONS.modes, pickAutoGif("greeting"));
-        return;
-      }
-
-      await botSayWithDelay(
-        "Welcome ✨ This is an English-only, AI-based character chatbot.\nPick a character to begin by typing \"Luna\" or \"Jax\" (or type \"pick\").",
-        GLOBAL_ACTIONS.pick
-      );
-      return;
-    }
-
-    const ch = getActiveCharacter();
-
-    if (intent === "help") {
-      await botSayWithDelay(
-        "Here are some things you can try:\n• \"rules\"\n• \"flirty\" / \"quest\" / \"roast\"\n• \"bye\"\n• Small talk: \"how are you\", \"joke\", \"bored\"",
-        [
-          { label:"Show rules", value:"rules", primary:true },
-          { label:"Flirty banter", value:"mode:flirty" },
-          { label:"Silly quest", value:"mode:quest" }
-        ],
-        pickAutoGif("greeting")
-      );
-      return;
-    }
-
-    if (intent === "rules") {
-      await botSayWithDelay(
-        "Supported intents:\n• picking: \"pick\", \"luna\", \"jax\"\n• modes: \"flirty\", \"quest\", \"roast\"\n• exit: \"bye\", \"quit\"\n• small talk: \"how are you\", \"joke\", \"story\", \"bored\", \"stressed\", \"tired\"",
-        GLOBAL_ACTIONS.modes,
-        pickAutoGif("greeting")
-      );
-      return;
-    }
-
-    if (intent === "pick" || intent === "pick_luna" || intent === "pick_jax") {
-      await botSayWithDelay(
-        "You’re already chatting with " + ch.name + ". Want to switch vibes instead?",
-        GLOBAL_ACTIONS.modes,
-        pickAutoGif("greeting")
-      );
-      return;
-    }
-
-    if (intent === "mode_flirty") {
-      state.conversationMode = "flirty";
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? "Oh? Feeling bold? Let’s see your best royal pickup line."
-          : "Ooh, turning up the heat. What’ve you got? 😏",
-        [],
-        pickAutoGif("greeting")
-      );
-      return;
-    }
-
-    if (intent === "mode_quest") {
-      state.conversationMode = "quest";
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? "An adventure? Grab your sword. Where to first?"
-          : "Let’s go. Are we fighting dragons or dodging lasers today?",
-        [],
-        pickAutoGif("story")
-      );
-      return;
-    }
-
-    if (intent === "mode_roast") {
-      state.conversationMode = "roast";
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? "Gentle teasing, then. Share one harmless detail about your day."
-          : "Gentle tease mode. Drop a tiny hot take—nothing serious.",
-        [],
-        pickAutoGif("laugh")
-      );
-      return;
-    }
-
-    if (intent === "greeting") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? pickRandom([
-              "Hello, my dear. How is your heart today?",
-              "Welcome back. What brings you to my court today?",
-              "Ah, there you are. Shall we begin?"
-            ])
-          : pickRandom([
-              "Yo! Mic check—what’s the vibe today?",
-              "Ayo! Ready to drop the beat?",
-              "What’s good? Let’s get this track started!"
-            ]),
-        GLOBAL_ACTIONS.modes,
-        pickAutoGif("greeting")
-      );
-      return;
-    }
-
-    if (intent === "thanks") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? pickRandom([
-              "You are most welcome. Shall we continue?",
-              "It was my pleasure, truly. 💫"
-            ])
-          : pickRandom([
-              "Anytime 😎 Want to switch the vibe?",
-              "No sweat! Got your back."
-            ]),
-        GLOBAL_ACTIONS.modes,
-        pickAutoGif("greeting")
-      );
-      return;
-    }
-
-    if (intent === "how_are_you") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? "I’m quite well, my dear—sparkly and attentive. How are you, truly?"
-          : "I’m good—levels are peaking. You okay?",
-        [
-          { label:"I’m good", value:"im good", primary:true },
-          { label:"I’m tired", value:"im tired" },
-          { label:"I’m stressed", value:"im stressed" },
-          { label:"I’m bored", value:"im bored" }
-        ],
-        pickAutoGif("greeting")
-      );
-      return;
-    }
-
-    if (intent === "who_are_you") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? "I am Luna of Everglass—an AI spirit wearing a crown for fun. Tell me what you seek: comfort, mischief, or a tiny quest?"
-          : "I’m Jax—AI DJ, vibe mechanic, occasional menace. Tell me your mood and I’ll remix the chat.",
-        GLOBAL_ACTIONS.modes,
-        pickAutoGif("greeting")
-      );
-      return;
-    }
-
-    if (intent === "bored") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? "Boredom is merely an unopened door. Choose: mini quest or a royal secret?"
-          : "Bored? Say less. Pick: quick game, mini-quest, or gentle roast.",
-        [
-          { label:"Mini quest", value:"mode:quest", primary:true },
-          { label:"Gentle roast", value:"mode:roast" },
-          { label:"Flirty banter", value:"mode:flirty" }
-        ],
-        pickAutoGif("story")
-      );
-      return;
-    }
-
-    if (intent === "tired") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? "Then we shall be gentle. Drink water, loosen your shoulders… and tell me one small thing you managed today."
-          : "Okay—low energy mode. One tiny win from today? Even “I survived” counts.",
-        [],
-        pickAutoGif("sad")
-      );
-      return;
-    }
-
-    if (intent === "stressed" || intent === "sad") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? "I’m sorry the day feels heavy. Take one slow breath with me. You do not need to carry everything at once."
-          : "That sounds rough. Let’s keep it simple—one breath, one step, one small win. I’m here.",
-        [],
-        pickAutoGif(intent)
-      );
-      return;
-    }
-
-    if (intent === "apology") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? "You are forgiven before the sentence is finished."
-          : "You’re good. No drama here.",
-        [],
-        pickAutoGif("apology")
-      );
-      return;
-    }
-
-    if (intent === "joke") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? "Why did the AI bring a ladder to the chat?\nBecause it wanted to reach higher context. 😌"
-          : "Why did the chatbot go to therapy?\nToo many unresolved intents. 😭",
-        [],
-        pickAutoGif("laugh")
-      );
-      return;
-    }
-
-    if (intent === "story") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? "Once upon a midnight in Everglass, a glowing key appeared on the castle stairs. Do you pick it up?"
-          : "Alright, here’s your story starter: neon rain, a broken speaker, and one suspicious text at 2 a.m. What do we do first?",
-        [
-          { label:"Pick it up", value:"story:yes", primary:true },
-          { label:"Ignore it", value:"story:no" }
-        ],
-        pickAutoGif("story")
-      );
-      return;
-    }
-
-    if (state.conversationMode === "flirty") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? pickRandom([
-              "That’s interesting… but say it like you mean it 😌",
-              "You flatter me, but we both know you can do better ✨"
-            ])
-          : pickRandom([
-              "Okay okay… say it with confidence 😏",
-              "Stop playing, give me the real energy! 🔥"
-            ]),
-        [],
-        pickAutoGif("greeting")
-      );
-      return;
-    }
-
-    if (state.conversationMode === "quest") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? pickRandom([
-              "Noted. Your next move: explore, negotiate, or cause trouble?",
-              "A wise choice. But suddenly, a goblin appears. What do you do?"
-            ])
-          : pickRandom([
-              "Your next move: explore, negotiate, or cause chaos?",
-              "Whoa, plot twist. Do we fight our way out or run?"
-            ]),
-        [],
-        pickAutoGif("story")
-      );
-      return;
-    }
-
-    if (state.conversationMode === "roast") {
-      await botSayWithDelay(
-        ch.id === "luna"
-          ? pickRandom([
-              "Gentle tease mode. Share one harmless detail and I’ll react playfully.",
-              "I see. That’s quite a strategy… for a beginner. 👑"
-            ])
-          : pickRandom([
-              "Gentle tease mode. Give me one harmless detail—I’ll react like it’s breaking news.",
-              "Lol, is that your best material? Give me something to work with!"
-            ]),
-        [],
-        pickAutoGif("laugh")
-      );
-      return;
-    }
-
-    await botSayWithDelay(
-      ch.prefix + ": " + pickRandom(FALLBACKS_WITHCHAR[ch.id]),
-      GLOBAL_ACTIONS.modes,
-      pickAutoGif("greeting")
-    );
+    return null;
   }
 
-  async function handleInput(rawText) {
-    if (state.isLocked || state.isProcessing) return;
-    state.isProcessing = true;
-    send.disabled = true;
-    log.querySelectorAll(".actionBtn").forEach(btn => btn.disabled = true);
+  // ========= Main respond() =========
+  async function respond(userText){
+    const t = normalize(userText);
+    const intent = mapToIntent(t) || null;
 
-    try {
-      await routeReply(rawText);
-    } catch (err) {
-      hideTyping();
-      addRow({
-        who: "bot",
-        text: "⚠️ Error: " + (err && err.message ? err.message : String(err)),
-        isError: true,
-        avatarUrl: Characters[0].avatar
-      });
-      console.error(err);
-    } finally {
-      state.isProcessing = false;
-      if (!state.isLocked) {
-        send.disabled = false;
-        log.querySelectorAll(".actionBtn").forEach(btn => btn.disabled = false);
+    if(userText && userText.startsWith("@choice:")){
+      const choice = userText.slice("@choice:".length).trim();
+      
+      let out = null;
+      if(choice === "pick:luna") out = matchRule("", "pick_luna").reply();
+      else if(choice === "pick:jax") out = matchRule("", "pick_jax").reply();
+      else if(choice === "mode:flirty") out = matchRule("", "mode_flirty").reply();
+      else if(choice === "mode:quest") out = matchRule("", "mode_quest").reply();
+      else if(choice === "mode:roast") out = matchRule("", "mode_roast").reply();
+      else {
+        await respond(choice);
+        return;
       }
-      msg.focus();
+
+      if(out && (out.text || out.media)){
+        let auto = null;
+        if (!out.media && activeChar) {
+          auto = pickAutoGif({ charId: activeChar.id, intent:"choice", mode: conversationMode });
+        }
+        await botSayWithDelay(out.text || "", out.actions || [], out.media || auto);
+      }
+      return;
     }
+
+    if(intent === "pick_luna" || intent === "pick_jax"){
+      const r = matchRule(t, intent);
+      if(r) r.reply();
+      return;
+    }
+
+    const rule = matchRule(t, intent);
+    if(rule){
+      const out = rule.reply();
+      if(out && (out.text || out.media)){
+        let auto = null;
+        if (!out.media && activeChar) {
+          auto = pickAutoGif({ charId: activeChar.id, intent: intent, mode: conversationMode });
+        }
+        await botSayWithDelay(out.text || "", out.actions || [], out.media || auto);
+      }
+      return;
+    }
+
+    if(!activeChar){
+      const pick = pickRandom(FALLBACKS_NOCHAR);
+      await botSayWithDelay(pick, GLOBAL_ACTIONS.pick);
+      return;
+    }
+
+    if(conversationMode === "flirty"){
+      const auto = pickAutoGif({ charId: activeChar.id, intent: intent, mode: conversationMode });
+      await botSayWithDelay(
+        charLine(
+          ["That’s interesting… but say it like you mean it 😌", "You flatter me, but we both know you can do better ✨"], 
+          ["Okay okay… say it with confidence 😏", "Stop playing, give me the real energy! 🔥"]
+        ),
+        [], auto
+      );
+      return;
+    }
+    if(conversationMode === "quest"){
+      const auto = pickAutoGif({ charId: activeChar.id, intent: intent, mode: conversationMode });
+      await botSayWithDelay(
+        charLine(
+          ["Noted. Your next move: explore, negotiate, or cause trouble?", "A wise choice. But suddenly, a goblin appears! What do you do?"],
+          ["Your next move: explore, negotiate, or cause chaos?", "Whoa, plot twist! Do we fight our way out or run?"]
+        ),
+        [], auto
+      );
+      return;
+    }
+    if(conversationMode === "roast"){
+      const auto = pickAutoGif({ charId: activeChar.id, intent: intent, mode: conversationMode });
+      await botSayWithDelay(
+        charLine(
+          ["Gentle tease mode. Share one harmless detail and I’ll react playfully—kindly.", "I see. That's quite a strategy... for a beginner. 👑"],
+          ["Gentle tease mode. Give me one harmless detail—I’ll react like it’s breaking news.", "Lol, is that your best material? Give me something to work with!"]
+        ),
+        [], auto
+      );
+      return;
+    }
+
+    let base = "Bot";
+    if (activeChar && activeChar.voice) {
+      base = activeChar.voice.prefix;
+    } else if (activeChar) {
+      base = activeChar.id === "luna" ? "Luna 👑" : "Jax 🎧";
+    }
+
+    const fbArray = (activeChar && activeChar.id === "luna") ? FALLBACKS_WITHCHAR.luna : FALLBACKS_WITHCHAR.jax;
+    const pick = pickRandom(fbArray);
+    const autoFallback = pickAutoGif({ charId: activeChar ? activeChar.id : null, intent: intent, mode: conversationMode });
+    
+    await botSayWithDelay(base + ": " + pick, [], autoFallback);
   }
 
-  async function onSend() {
+  // ========= Send handling =========
+  async function onSend(){
     const text = msg.value.replace(/\r/g, "").trim();
-    if (!text || state.isLocked || state.isProcessing) return;
+    if(!text) return;
 
-    addRow({ who: "me", text });
+    addRow({who:"me", text: text});
     msg.value = "";
-    await handleInput(text);
-  }
-
-  function hardReset(withWelcome = true) {
-    log.innerHTML = "";
-    state.activeChar = null;
-    state.awaitingPick = true;
-    state.conversationMode = "casual";
-    state.isLocked = false;
-    state.isProcessing = false;
-    state.currentGifIndex = 0;
-    hideTyping();
-    unlockChat();
-
-    if (withWelcome) {
-      addRow({
-        who: "bot",
-        text: "Welcome ✨ This is an English-only, AI-based character chatbot.\nType \"Luna\" or \"Jax\" to pick a character (or type \"pick\").",
-        avatarUrl: Characters[0].avatar,
-        actions: GLOBAL_ACTIONS.pick
-      });
-    }
-
-    showToast("Reset complete");
     msg.focus();
+
+    send.disabled = true;
+    try{
+      await respond(text);
+    } catch(err) {
+      // ✨ 에러가 발생하면 무조건 빨간색 버블로 채팅창에 원인을 띄워줍니다!
+      addRow({who:"bot", text: "⚠️ Error: " + err.message + "\n" + err.stack, isError: true});
+    } finally {
+      if(!msg.disabled) send.disabled = false;
+    }
   }
 
-  msg.addEventListener("keydown", async (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  msg.addEventListener("keydown", function(e) {
+    if(e.key === "Enter" && !e.shiftKey){
       e.preventDefault();
-      await onSend();
+      onSend();
     }
   });
-
   send.addEventListener("click", onSend);
-  resetBtn.addEventListener("click", () => hardReset(true));
 
-  hardReset(true);
-})();
+  // ========= Reset =========
+  function hardReset(withWelcome){
+    log.innerHTML = "";
+    activeChar = null;
+    awaitingPick = true;
+    conversationMode = "casual";
+    currentGifIndex = 0; 
+
+    unlockChat(); 
+
+    if(withWelcome !== false){
+      botSay(
+"Welcome ✨ Pick a character to begin.\nType \"Luna\" or \"Jax\", or type \"pick\".",
+        GLOBAL_ACTIONS.pick
+      );
+    }
+    showToast("Reset complete");
+  }
+  resetBtn.addEventListener("click", function() { hardReset(true); });
+
+  // ========= Boot =========
+  botSay(
+"Welcome ✨ This is an English-only, AI-based character chatbot.\nType \"Luna\" or \"Jax\" to pick a character (or type \"pick\").",
+    GLOBAL_ACTIONS.pick
+  );
+
+})(); // IIFE end
 </script>
 </body>
 </html>
