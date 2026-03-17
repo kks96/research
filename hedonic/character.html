@@ -449,7 +449,7 @@
     isLocked: false,
     isProcessing: false,
     typingEl: null,
-    currentGifIndex: 0
+    gifBags: {}
   };
 
   function nowTime() {
@@ -482,6 +482,15 @@
 
   function pickRandom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
   }
 
   function svgAvatarDataURI(config) {
@@ -528,20 +537,105 @@
 
   const GIFS = {
     luna: {
-      general: [
-        { id:"smug", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWJlbmJ4bWp5bnViZWZnazVmdHlzeWlkdmNkMm00cm1wMTJmanMzbyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3htlqWXxb5x8MOVvFU/giphy.gif" },
-        { id:"yay", src:"https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YTN1MTN4YndvaGxpYzBxMTNkZzMzaXMxZjRpeG00MHBzb2dyd2pjZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/gbn9Z5tgJiKnRLOyxd/giphy.gif" }
+      greeting: [
+        { id:"luna_greet_1", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWJlbmJ4bWp5bnViZWZnazVmdHlzeWlkdmNkMm00cm1wMTJmanMzbyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3htlqWXxb5x8MOVvFU/giphy.gif" },
+        { id:"luna_greet_2", src:"https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YTN1MTN4YndvaGxpYzBxMTNkZzMzaXMxZjRpeG00MHBzb2dyd2pjZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/gbn9Z5tgJiKnRLOyxd/giphy.gif" },
+        { id:"luna_greet_3", src:"https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" }
       ],
-      negative: { id:"nope", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXZyanlyazIyMHJsNmFxNW92MmRmc2MzazlhZ3lzMHRkNXlna3l5eSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/nR4L10XlJcSeQ/giphy.gif" },
-      bye: { id:"luna_bye", src:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGwzMWF0c3FzZ2JsemUwMTlteHFlczY4NG16NjlqbWw4cmhuNTk3NyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Bht33KS4YXaHS5ABOP/giphy.gif" }
+      story: [
+        { id:"luna_story_1", src:"https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif" },
+        { id:"luna_story_2", src:"https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" }
+      ],
+      laugh: [
+        { id:"luna_laugh_1", src:"https://media.giphy.com/media/Q7ozWVYCR0nyW2rvPW/giphy.gif" },
+        { id:"luna_laugh_2", src:"https://media.giphy.com/media/10JhviFuU2gWD6/giphy.gif" }
+      ],
+      apology: [
+        { id:"luna_apology_1", src:"https://media.giphy.com/media/nR4L10XlJcSeQ/giphy.gif" },
+        { id:"luna_apology_2", src:"https://media.giphy.com/media/L95W4wv8nnb9K/giphy.gif" }
+      ],
+      sad: [
+        { id:"luna_sad_1", src:"https://media.giphy.com/media/nR4L10XlJcSeQ/giphy.gif" },
+        { id:"luna_sad_2", src:"https://media.giphy.com/media/9Y5BbDSkSTiY8/giphy.gif" }
+      ],
+      stressed: [
+        { id:"luna_stressed_1", src:"https://media.giphy.com/media/9Y5BbDSkSTiY8/giphy.gif" },
+        { id:"luna_stressed_2", src:"https://media.giphy.com/media/nR4L10XlJcSeQ/giphy.gif" }
+      ],
+      flirty: [
+        { id:"luna_flirty_1", src:"https://media.giphy.com/media/3htlqWXxb5x8MOVvFU/giphy.gif" },
+        { id:"luna_flirty_2", src:"https://media.giphy.com/media/gbn9Z5tgJiKnRLOyxd/giphy.gif" }
+      ],
+      quest: [
+        { id:"luna_quest_1", src:"https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif" },
+        { id:"luna_quest_2", src:"https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" }
+      ],
+      roast: [
+        { id:"luna_roast_1", src:"https://media.giphy.com/media/Q7ozWVYCR0nyW2rvPW/giphy.gif" },
+        { id:"luna_roast_2", src:"https://media.giphy.com/media/10JhviFuU2gWD6/giphy.gif" }
+      ],
+      comfort: [
+        { id:"luna_comfort_1", src:"https://media.giphy.com/media/9Y5BbDSkSTiY8/giphy.gif" },
+        { id:"luna_comfort_2", src:"https://media.giphy.com/media/L95W4wv8nnb9K/giphy.gif" }
+      ],
+      bye: [
+        { id:"luna_bye_1", src:"https://media.giphy.com/media/Bht33KS4YXaHS5ABOP/giphy.gif" },
+        { id:"luna_bye_2", src:"https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" }
+      ],
+      fallback: [
+        { id:"luna_fallback_1", src:"https://media.giphy.com/media/3htlqWXxb5x8MOVvFU/giphy.gif" }
+      ]
     },
+
     jax: {
-      general: [
-        { id:"hype", src:"https://media.giphy.com/media/w5eFyOHmkS8uc/giphy.gif" },
-        { id:"lol", src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXlpOHRoNGM4NjZjYmh3em93ejNraGdrcG5heTkzemhyZ2xlMXhsdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WO69ltlJZp0ZwI98kN/giphy.gif" }
+      greeting: [
+        { id:"jax_greet_1", src:"https://media.giphy.com/media/w5eFyOHmkS8uc/giphy.gif" },
+        { id:"jax_greet_2", src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXlpOHRoNGM4NjZjYmh3em93ejNraGdrcG5heTkzemhyZ2xlMXhsdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WO69ltlJZp0ZwI98kN/giphy.gif" },
+        { id:"jax_greet_3", src:"https://media.giphy.com/media/l4FGpP4lxGGgK5CBW/giphy.gif" }
       ],
-      negative: { id:"facepalm", src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2xwamhvYXA3eW41N3VyOW5taTR0OWp4cTk1dHptcjRzZXFsbWNtMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9IgtrdGCFIFziuqY/giphy.gif" },
-      bye: { id:"jax_bye", src:"https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cDYzOTdsdzdnMjIxbW5xdXlqZjlsMnJvZnpocHA1dWJyazlzcG1qNiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/IHeP5FkVoNoRcjGmyG/giphy.gif" }
+      story: [
+        { id:"jax_story_1", src:"https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif" },
+        { id:"jax_story_2", src:"https://media.giphy.com/media/3o7TKtnuHOHHUjR38Y/giphy.gif" }
+      ],
+      laugh: [
+        { id:"jax_laugh_1", src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXlpOHRoNGM4NjZjYmh3em93ejNraGdrcG5heTkzemhyZ2xlMXhsdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WO69ltlJZp0ZwI98kN/giphy.gif" },
+        { id:"jax_laugh_2", src:"https://media.giphy.com/media/3oEjHI8WJv4x6UPDB6/giphy.gif" }
+      ],
+      apology: [
+        { id:"jax_apology_1", src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2xwamhvYXA3eW41N3VyOW5taTR0OWp4cTk1dHptcjRzZXFsbWNtMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9IgtrdGCFIFziuqY/giphy.gif" },
+        { id:"jax_apology_2", src:"https://media.giphy.com/media/14uQ3cOFteDaU/giphy.gif" }
+      ],
+      sad: [
+        { id:"jax_sad_1", src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2xwamhvYXA3eW41N3VyOW5taTR0OWp4cTk1dHptcjRzZXFsbWNtMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9IgtrdGCFIFziuqY/giphy.gif" },
+        { id:"jax_sad_2", src:"https://media.giphy.com/media/l378giAZgxPw3eO52/giphy.gif" }
+      ],
+      stressed: [
+        { id:"jax_stressed_1", src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2xwamhvYXA3eW41N3VyOW5taTR0OWp4cTk1dHptcjRzZXFsbWNtMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9IgtrdGCFIFziuqY/giphy.gif" },
+        { id:"jax_stressed_2", src:"https://media.giphy.com/media/2UIcmK4pn7rYNLRboG/giphy.gif" }
+      ],
+      flirty: [
+        { id:"jax_flirty_1", src:"https://media.giphy.com/media/w5eFyOHmkS8uc/giphy.gif" },
+        { id:"jax_flirty_2", src:"https://media.giphy.com/media/l4FGpP4lxGGgK5CBW/giphy.gif" }
+      ],
+      quest: [
+        { id:"jax_quest_1", src:"https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif" },
+        { id:"jax_quest_2", src:"https://media.giphy.com/media/3o7TKtnuHOHHUjR38Y/giphy.gif" }
+      ],
+      roast: [
+        { id:"jax_roast_1", src:"https://media.giphy.com/media/3oEjHI8WJv4x6UPDB6/giphy.gif" },
+        { id:"jax_roast_2", src:"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXlpOHRoNGM4NjZjYmh3em93ejNraGdrcG5heTkzemhyZ2xlMXhsdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WO69ltlJZp0ZwI98kN/giphy.gif" }
+      ],
+      comfort: [
+        { id:"jax_comfort_1", src:"https://media.giphy.com/media/l378giAZgxPw3eO52/giphy.gif" },
+        { id:"jax_comfort_2", src:"https://media.giphy.com/media/2UIcmK4pn7rYNLRboG/giphy.gif" }
+      ],
+      bye: [
+        { id:"jax_bye_1", src:"https://media.giphy.com/media/IHeP5FkVoNoRcjGmyG/giphy.gif" },
+        { id:"jax_bye_2", src:"https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif" }
+      ],
+      fallback: [
+        { id:"jax_fallback_1", src:"https://media.giphy.com/media/w5eFyOHmkS8uc/giphy.gif" }
+      ]
     }
   };
 
@@ -556,12 +650,6 @@
       { label: "Roast me", value: "mode:roast" }
     ]
   };
-
-  const FALLBACKS_NOCHAR = [
-    "Pick a character first 🙂",
-    "Type \"Luna\" or \"Jax\" (or \"pick\").",
-    "Want to start? Type \"Luna\" or \"Jax\"."
-  ];
 
   const FALLBACKS_WITHCHAR = {
     luna: [
@@ -734,24 +822,55 @@
     state.typingEl = null;
   }
 
+  function getGifFromBag(charId, category) {
+    const charBank = GIFS[charId];
+    if (!charBank) return null;
+
+    const pool = charBank[category] || charBank.fallback || [];
+    if (!pool.length) return null;
+
+    const bagKey = `${charId}:${category}`;
+
+    if (!state.gifBags[bagKey] || state.gifBags[bagKey].length === 0) {
+      state.gifBags[bagKey] = shuffle(pool);
+    }
+
+    const picked = state.gifBags[bagKey].pop();
+    return picked ? { type: "gif", src: picked.src, alt: picked.id } : null;
+  }
+
   function pickAutoGif(intent) {
     const ch = getActiveCharacter();
     if (!ch) return null;
 
-    const bank = GIFS[ch.id];
-    if (!bank) return null;
-
-    const negativeIntents = ["apology", "sad", "stressed"];
-    if (negativeIntents.includes(intent) || state.conversationMode === "roast") {
-      if (bank.negative) {
-        return { type: "gif", src: bank.negative.src, alt: bank.negative.id };
-      }
+    if (state.conversationMode === "flirty" && (intent === "greeting" || intent === "flirty")) {
+      return getGifFromBag(ch.id, "flirty");
     }
 
-    if (!bank.general || bank.general.length === 0) return null;
-    const picked = bank.general[state.currentGifIndex % bank.general.length];
-    state.currentGifIndex += 1;
-    return { type: "gif", src: picked.src, alt: picked.id };
+    if (state.conversationMode === "quest" && (intent === "story" || intent === "quest")) {
+      return getGifFromBag(ch.id, "quest");
+    }
+
+    if (state.conversationMode === "roast" && (intent === "laugh" || intent === "roast" || intent === "greeting")) {
+      return getGifFromBag(ch.id, "roast");
+    }
+
+    const map = {
+      greeting: "greeting",
+      story: "story",
+      laugh: "laugh",
+      apology: "apology",
+      sad: "sad",
+      stressed: "stressed",
+      comfort: "comfort",
+      bye: "bye",
+      flirty: "flirty",
+      quest: "quest",
+      roast: "roast"
+    };
+
+    const category = map[intent] || "fallback";
+    return getGifFromBag(ch.id, category);
   }
 
   async function botSayWithDelay(text, actions = [], media = null, delayMs = 700) {
@@ -809,7 +928,10 @@
 
     state.activeChar = ch.id;
     state.awaitingPick = false;
-    state.currentGifIndex = 0;
+
+    Object.keys(state.gifBags).forEach(key => {
+      if (key.startsWith(ch.id + ":")) delete state.gifBags[key];
+    });
 
     addSystemRow("You are now chatting with " + ch.name + ".");
     return ch;
@@ -824,14 +946,12 @@
 
       if (value === "pick:luna") {
         const ch = setActiveCharacter("luna");
-        // 핵심: 세 번째 인자(actions)를 빈 배열 []로 전달하여 첫 인사 때는 버튼을 숨깁니다.
         await botSayWithDelay(getIntroForCharacter(ch), [], pickAutoGif("greeting"));
         return;
       }
 
       if (value === "pick:jax") {
         const ch = setActiveCharacter("jax");
-        // 핵심: 세 번째 인자(actions)를 빈 배열 []로 전달하여 첫 인사 때는 버튼을 숨깁니다.
         await botSayWithDelay(getIntroForCharacter(ch), [], pickAutoGif("greeting"));
         return;
       }
@@ -847,7 +967,7 @@
             ? "Flirty mode? Say less. Compliment me in 5 words 😌"
             : "Flirty mode? Bold. Hit me with your best pickup line. I will judge it.",
           [],
-          pickAutoGif("greeting")
+          pickAutoGif("flirty")
         );
         return;
       }
@@ -863,7 +983,7 @@
             ? "Quest time! Choose: haunted arcade, moon bazaar, or secret karaoke dungeon."
             : "Quest mode. Choose your weapon: sarcasm, charm, or chaos.",
           [],
-          pickAutoGif("story")
+          pickAutoGif("quest")
         );
         return;
       }
@@ -879,7 +999,7 @@
             ? "Very well. Prepare to be softly judged 👑"
             : "Roast mode on. Don’t worry, I’ll keep it light.",
           [],
-          pickAutoGif("laugh")
+          pickAutoGif("roast")
         );
         return;
       }
@@ -895,7 +1015,7 @@
 
     if (intent === "bye") {
       const ch = getActiveCharacter();
-      const byeMedia = ch ? { type: "gif", src: GIFS[ch.id].bye.src, alt: GIFS[ch.id].bye.id } : null;
+      const byeMedia = ch ? pickAutoGif("bye") : null;
       await botSayWithDelay(
         ch && ch.id === "luna"
           ? "It seems my time here is up. I must return to my royal duties now. Farewell, my dear. ✨"
@@ -969,7 +1089,7 @@
           ? "Oh? Feeling bold? Let’s see your best royal pickup line."
           : "Ooh, turning up the heat. What’ve you got? 😏",
         [],
-        pickAutoGif("greeting")
+        pickAutoGif("flirty")
       );
       return;
     }
@@ -981,7 +1101,7 @@
           ? "An adventure? Grab your sword. Where to first?"
           : "Let’s go. Are we fighting dragons or dodging lasers today?",
         [],
-        pickAutoGif("story")
+        pickAutoGif("quest")
       );
       return;
     }
@@ -993,7 +1113,7 @@
           ? "Gentle teasing, then. Share one harmless detail about your day."
           : "Gentle tease mode. Drop a tiny hot take—nothing serious.",
         [],
-        pickAutoGif("laugh")
+        pickAutoGif("roast")
       );
       return;
     }
@@ -1071,7 +1191,7 @@
           { label:"Gentle roast", value:"mode:roast" },
           { label:"Flirty banter", value:"mode:flirty" }
         ],
-        pickAutoGif("story")
+        pickAutoGif("quest")
       );
       return;
     }
@@ -1082,7 +1202,7 @@
           ? "Then we shall be gentle. Drink water, loosen your shoulders… and tell me one small thing you managed today."
           : "Okay—low energy mode. One tiny win from today? Even “I survived” counts.",
         [],
-        pickAutoGif("sad")
+        pickAutoGif("comfort")
       );
       return;
     }
@@ -1093,7 +1213,7 @@
           ? "I’m sorry the day feels heavy. Take one slow breath with me. You do not need to carry everything at once."
           : "That sounds rough. Let’s keep it simple—one breath, one step, one small win. I’m here.",
         [],
-        pickAutoGif(intent)
+        pickAutoGif("comfort")
       );
       return;
     }
@@ -1146,7 +1266,7 @@
               "Stop playing, give me the real energy! 🔥"
             ]),
         [],
-        pickAutoGif("greeting")
+        pickAutoGif("flirty")
       );
       return;
     }
@@ -1163,7 +1283,7 @@
               "Whoa, plot twist. Do we fight our way out or run?"
             ]),
         [],
-        pickAutoGif("story")
+        pickAutoGif("quest")
       );
       return;
     }
@@ -1180,7 +1300,7 @@
               "Lol, is that your best material? Give me something to work with!"
             ]),
         [],
-        pickAutoGif("laugh")
+        pickAutoGif("roast")
       );
       return;
     }
@@ -1235,7 +1355,7 @@
     state.conversationMode = "casual";
     state.isLocked = false;
     state.isProcessing = false;
-    state.currentGifIndex = 0;
+    state.gifBags = {};
     hideTyping();
     unlockChat();
 
