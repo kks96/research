@@ -352,7 +352,7 @@ textarea.input::placeholder{
     <div class="header">
       <div class="avatar" id="botAvatar"></div>
       <div>
-        <div class="title" id="botName">PPT Builder AI “GPPT”</div>
+        <div class="title" id="botName">AI PPT-building Chatbot</div>
         <div class="subtitle" id="botDesc"></div>
       </div>
     </div>
@@ -362,7 +362,7 @@ textarea.input::placeholder{
     <div class="endedOverlay" id="endedOverlay">
       <div class="endedBox">
         <div class="endedTitle">✅ This chat has ended</div>
-        <div class="endedDesc">Thanks for using GPPT. Come back anytime. </div>
+        <div class="endedDesc">Thanks for using. Come back anytime. </div>
       </div>
     </div>
 
@@ -381,7 +381,7 @@ textarea.input::placeholder{
 <script>
 (function () {
   const BOT = {
-    name: "PPT Builder AI “GPPT”",
+    name: "AI PPT-building Chatbot",
     avatarSvg: `
       <svg viewBox="0 0 64 64" width="38" height="38" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -639,7 +639,7 @@ textarea.input::placeholder{
       id: "ask_name",
       patterns: [/what('?s| is) your name\??/i, /who are you\??/i, /your name\??/i],
       reply: () => ({
-        text: `My name is GPPT.\nI’m a scenario-based PPT helper — I can:\n• Provide a starter PPT template (download)\n• Suggest slide structure for executive briefing / roadmap / pitch\n• Turn your topic into clear slide titles + key bullets`,
+        text: `I am AI PPT-building Chatbot.\nI’m a PPT helper — I can:\n• Provide a starter PPT template (download)\n• Suggest slide structure for executive briefing / roadmap / pitch\n• Turn your topic into clear slide titles + key bullets`,
         actions: [
           { label: "Executive briefing", type: "choice", value: "executive" },
           { label: "AI roadmap", type: "choice", value: "roadmap" },
@@ -770,7 +770,7 @@ textarea.input::placeholder{
         awaitingContinueAfterThanks = false;
         addRow({
           who: "bot",
-          text: `Got it. Thanks for using GPPT.\nWhenever you need help, just come back and ask — I’ll be here!`
+          text: `Got it. Thanks for using.\nWhenever you need help, just come back and ask — I’ll be here!`
         });
 
         lockChat(); // 사용자가 더 이상 템플릿 안 받겠다고 거절했을 때도 잠금
@@ -872,7 +872,7 @@ textarea.input::placeholder{
 
   addRow({
     who:"bot",
-    text: `Hi! I'm GPPT — your AI PPT helper.\nTell me what kind of deck you want, or type "help" to see buttons.\n\nExample: "Help me create a PowerPoint about AI business"`
+    text: `Hi! I'm AI PPT-building Chatbot — your AI PPT helper.\nTell me what kind of deck you want, or type "help" to see buttons.\n\nExample: "Help me create a PowerPoint about AI business"`
   });
 
 })();
